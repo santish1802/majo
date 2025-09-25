@@ -1,0 +1,293 @@
+body {
+	background: #ffffff;
+	min-height: 100vh;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+html {
+	font-size: 16px;
+}
+
+/* Estilos para tablet */
+@media (max-width:768px) {
+	html {
+		font-size: 14px;         /* Ajusta el tamaño de fuente para tablets */
+	}
+}
+.btns-mv {
+	display: flex !important;
+}	.btns-pc {
+		display: none !important;
+	}
+/* @media (max-width:440px) {
+	.texto-nota {
+		display: none;
+	}
+	.btn-nota i {
+		margin: 0 !important; 
+	}
+	.btns-mv {
+		display: flex !important;
+	}
+
+} */
+.navbar-toggler:focus {
+	box-shadow: none;
+}
+.navbar-toggler {
+	border: none;
+}
+nav {
+	z-index: 1000;
+}
+#majo {
+	height: 3rem;
+}
+.navbar-brand {
+	display: flex;
+	align-items: center;
+}
+.text-logo {
+	justify-content: center;
+	align-items: center;
+	gap: 2px;
+}
+.text-logo:nth-child(2) {
+	font-size: .625rem;
+}
+.glass-card {
+	background: rgba(255, 255, 255, 0.95);
+	backdrop-filter: blur(1.25rem);
+	-webkit-backdrop-filter: blur(1.25rem);
+	border: .0625rem solid rgba(255, 255, 255, 0.2);
+	transition: all 0.3s ease;
+}
+.glass-card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.15);
+}
+.header-card {
+	border: .0625rem solid rgba(255, 255, 255, 0.2);
+}
+.stat-card {
+	border: none;
+	transition: all 0.3s ease;
+}
+.stat-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 .9375rem 1.875rem rgba(0, 0, 0, 0.2);
+}
+.pedido-card {
+	background: #ffffff;
+	box-shadow: 0 .125rem .5rem rgba(0, 0, 0, 0.1);
+	border: .0625rem solid rgba(255, 255, 255, 0.2);
+	transition: all 0.3s ease;
+}
+.pedido-card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.15);
+}
+.estado-pendiente {
+	border-left: .375rem solid #f7dfa4ff !important;
+}
+.estado-completado {
+	border-left: .375rem solid #94f7d6ff !important;
+}
+.estado-cancelado {
+	border-left: .375rem solid #ef4444;
+}
+.detalle-item {
+	background: #f8fafc;
+	border-radius: .75rem;
+	padding: .375rem;
+}
+.badge-ubicacion {
+	font-size: 0.85em;
+	border: none;
+	padding: .375rem .75rem;
+	border-radius: 1.25rem;
+}
+.btn-custom {
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .0313rem;
+	transition: all 0.3s ease;
+	border: none;
+	border-radius: .75rem;
+}
+.btn-custom:hover {
+	transform: translateY(-2px);
+}
+.btn-success-custom:hover {
+	box-shadow: 0 .5rem 1.5625rem rgba(16, 185, 129, 0.3);
+}
+.btn-info-custom:hover {
+	box-shadow: 0 .5rem 1.5625rem rgba(99, 149, 241, 0.3);
+}
+.btn-dark-custom:hover {
+	box-shadow: 0 .5rem 1.5625rem rgba(31, 41, 55, 0.3);
+}
+.form-control:focus, .form-select:focus {
+	background: white;
+	border-color: #6395f1;
+	box-shadow: 0 0 0 .2rem rgba(99, 149, 241, 0.25);
+}
+.dropdown-menu {
+	background: rgba(255, 255, 255, 0.95);
+	border: .0625rem solid rgba(255, 255, 255, 0.2);
+	border-radius: 1rem;
+}
+.dropdown-item:hover {
+	background: rgba(99, 149, 241, 0.1);
+}
+.modal-content {
+	background: rgba(255, 255, 255, 0.95);
+	backdrop-filter: blur(1.25rem);
+	border: .0625rem solid rgba(255, 255, 255, 0.2);
+	border-radius: 1.25rem;
+}
+.status-badge {
+	padding: .5rem 1rem;
+	border-radius: 1.25rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .0313rem;
+	font-size: .75rem;
+}
+.price-display {
+	font-size: 1.5rem;
+	font-weight: 800;
+	color: #1f2937;
+}
+.items-preview {
+	max-height: 12.5rem;
+	overflow-y: auto;
+}
+.items-preview::-webkit-scrollbar {
+	width: .25rem;
+}
+.items-preview::-webkit-scrollbar-track {
+	background: #f1f1f1;
+	border-radius: .625rem;
+}
+.items-preview::-webkit-scrollbar-thumb {
+	background: #6395f1;
+	border-radius: .625rem;
+}
+.no-pedidos {
+	background: rgba(255, 255, 255, 0.95);
+	backdrop-filter: blur(1.25rem);
+	border: .0625rem solid rgba(255, 255, 255, 0.2);
+	border-radius: 1.5rem;
+	padding: 4rem 2rem;
+}
+@media (max-width:48rem) {
+	.pedido-card {
+		margin-bottom: 1rem;
+	}
+	.pedido-card .btn-group {
+		flex-direction: column;
+	}
+	.pedido-card .btn-group .btn {
+		border-radius: .75rem !important;
+		margin-bottom: .25rem;
+	}
+}
+.bg-white.bg-opacity-25.rounded-circle.p-3 {
+	display: flex;
+	aspect-ratio: 1 / 1;
+}
+.bg-white.bg-opacity-25.rounded-circle.p-3 i {
+	display: flex;
+}
+
+/* @c-red index */
+.modern-summary, #tipoUbicacion {
+	border: .0625rem solid #e2e8f0;
+	border-radius: 1.25rem;
+	padding: 1.5rem;
+	margin: 1.25rem 0;
+}
+#tipoUbicacion {
+	padding: .3125rem 1.5rem;
+	margin: 0;
+}
+.modern-summary .row {
+	margin-bottom: .75rem;
+}
+.modern-summary .row:last-child {
+	border-top: .125rem solid #e2e8f0;
+	padding-top: .75rem;
+	margin-bottom: 0;
+	font-weight: 700;
+}
+.sugerencia-item {
+	padding: .625rem;
+	border-bottom: .0625rem solid #eee;
+	cursor: pointer;
+	display: flex;
+	justify-content: space-between;
+}
+.sugerencia-item:hover {
+	background: #f8f9fa;
+}
+.suggestions {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	z-index: 1000;
+	background: white;
+	border: .0625rem solid #ddd;
+	border-top: none;
+	max-height: 18.75rem;
+	overflow-y: auto;
+}
+.carrito-item {
+	border: .0625rem solid #e2e8f0;
+	border-radius: 1.25rem;
+	padding: 1.5rem;
+	margin: 1.25rem 0;
+}
+#btn-cant {
+	border: .0625rem solid #022238;
+	border-radius: 1.25rem;
+	overflow: hidden;
+}
+.btn-cant {
+	border: .0625rem solid #022238;
+	border-radius: 1.25rem;
+	overflow: hidden;
+}
+textarea#notasPedido {
+	border: .0625rem solid #e2e8f0;
+	border-radius: 1.25rem;
+	padding: 1.5rem;
+	margin: 1.5rem 0;
+}
+input[type="number"], input[type="text"] {
+	border: .0625rem solid #e2e8f0
+}
+.btn-cantidad {
+	width: 1.875rem;
+	padding: 0;
+}
+#seccion-combos .card-body ul {
+	list-style-type: none;
+	padding-left: 0;
+}
+.alert.alert-success {
+	position: fixed;
+	top: 1rem;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 1055;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1rem 1.5rem;
+	border-radius: .75rem;
+	transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
+}
+a {
+	text-decoration: none !important;
+}

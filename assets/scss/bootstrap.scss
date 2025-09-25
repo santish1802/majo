@@ -1,0 +1,43 @@
+// custom-theme.scss
+
+// 1. Importa las variables del tema base PRIMERO
+@import "../../node_modules/bootswatch/dist/sandstone/variables";
+
+// 2. Define tus colores personalizados
+
+
+// 3. Sobrescribe las variables de Bootstrap
+
+$primary:   #022238;
+$secondary: lighten(mix($primary, gray, 50%), 15%);
+$success:   #10b981;
+$info:      #6395f1ff;
+$warning:   #fbbf24;
+$danger:    #ef4444;
+$light:     #e2e8f0;
+$dark:      #1f2937;
+
+// 4. Crea colores personalizados adicionales y fusiona directamente
+$theme-colors: map-merge(
+  (
+    "primary":   $primary,
+    "secondary": $secondary,
+    "success":   $success,
+    "info":      $info,
+    "warning":   $warning,
+    "danger":    $danger,
+    "light":     $light,
+    "dark":      $dark
+  ),
+  (
+    "white": white,
+    "black": black,
+    "gray": #cad2dd,
+  )
+);
+
+// 5. Importa Bootstrap con tus variables personalizadas
+@import "../../node_modules/bootstrap/scss/bootstrap";
+
+// 6. Importa los estilos específicos del tema Sandstone AL FINAL
+@import "../../node_modules/bootswatch/dist/sandstone/bootswatch";
