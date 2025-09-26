@@ -86,7 +86,7 @@ if (!isset($_SESSION['rol'])) {
                             <i class="bi bi-person-fill"></i> ¡Hola, <?php echo htmlspecialchars($_SESSION['nombre_usuario']); ?>!
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Mi Perfil</a></li>
+                            <li><a class="dropdown-item" href="/perfil.php">Mi Perfil</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
