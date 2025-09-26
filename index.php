@@ -50,7 +50,7 @@
                             </div>
                             <div class="col-6">
                                 <label for="numeroMesa" class="form-label fw-bold">Número de Mesa</label>
-                                <input type="number" id="numeroMesa" class="form-control border-2" placeholder="Ej: 5" min="1">
+                                <input type="number" id="numeroMesa" class="form-control border-2" placeholder="# Mesa" min="1">
                             </div>
                         </div>
 
@@ -638,7 +638,7 @@
                         alerta.className = 'alert alert-success alert-dismissible fade show';
                         alerta.innerHTML = `
                         <div>
-                            Pedido creado exitosamente
+                            Pedido creado
                         </div>
                         <div>
                             <a href="/pedidos.php" class="btn btn-sm btn-white text-black ms-3">Ver pedidos</a>
@@ -653,6 +653,7 @@
                         actualizarCarrito();
                         document.getElementById('notasPedido').value = '';
                         document.getElementById('descuentoValor').value = '';
+                        document.getElementById('numeroMesa').value = '';
                         descuentoGlobal = {
                             tipo: '',
                             valor: 0

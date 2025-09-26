@@ -282,6 +282,7 @@ input[type="number"], input[type="text"] {
 	position: fixed;
 	top: 1rem;
 	left: 50%;
+	width: max-content;
 	transform: translateX(-50%);
 	z-index: 1055;
 	display: flex;
