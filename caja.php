@@ -111,6 +111,9 @@ $movimientos = $stmt_movimientos->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control de Caja por Fecha</title>
+    <?php 
+    include $_SERVER['DOCUMENT_ROOT'] . "/assets/img/favicon/favicon.php";
+    ?>   
     <link href="/assets/scss/bootstrap.css" rel="stylesheet">
     <link href="/assets/style.css" rel="stylesheet">
 

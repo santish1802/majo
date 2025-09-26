@@ -14,6 +14,9 @@ if ($pedidoId <= 0) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MAJO - Editar Pedido #<?= $pedidoId ?></title>
+    <?php 
+    include $_SERVER['DOCUMENT_ROOT'] . "/assets/img/favicon/favicon.php";
+    ?>   
     <?php $version = date('YmdHi');?>
     <link href="/assets/scss/bootstrap.css?v=<?php echo $version; ?>" rel="stylesheet">
     <link href="/assets/style.css?v=<?php echo $version; ?>" rel="stylesheet">
