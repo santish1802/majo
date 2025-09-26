@@ -24,7 +24,7 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil</title>
-    <?php $version = date('YmdHi');?>
+    <?php $version = date('YmdHi'); ?>
     <link href="/assets/scss/bootstrap.css?v=<?php echo $version; ?>" rel="stylesheet">
     <link href="/assets/style.css?v=<?php echo $version; ?>" rel="stylesheet">
 </head>
@@ -41,20 +41,20 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
                     </div>
                     <div class="card-body">
 
-
-
                         <!-- Área para mostrar mensajes -->
                         <div id="mensaje-area"></div>
 
                         <div>
                             <div class="mb-3">
                                 <label for="nombre_usuario" class="form-label">Nombre de Usuario</label>
-                                <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario" value="<?php echo htmlspecialchars($usuario['nombre_usuario']); ?>" required>
+                                <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario"
+                                    value="<?php echo htmlspecialchars($usuario['nombre_usuario']); ?>" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="rol" class="form-label">Rol</label>
-                                <input type="text" class="form-control" id="rol" name="rol" value="<?php echo htmlspecialchars($usuario['rol']); ?>" readonly>
+                                <input type="text" class="form-control" id="rol" name="rol"
+                                    value="<?php echo htmlspecialchars($usuario['rol']); ?>" readonly>
                             </div>
 
                             <hr class="my-4">
@@ -62,17 +62,23 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
                             <div class="mb-3">
                                 <label for="antigua_contrasena" class="form-label">Contraseña Antigua</label>
-                                <input type="password" class="form-control" id="antigua_contrasena" name="antigua_contrasena">
+                                <input type="password" class="form-control" id="antigua_contrasena"
+                                    name="antigua_contrasena"
+                                    <?php echo ($usuario['rol'] === 'user') ? 'disabled' : ''; ?>>
                             </div>
 
                             <div class="mb-3">
                                 <label for="nueva_contrasena" class="form-label">Nueva Contraseña</label>
-                                <input type="password" class="form-control" id="nueva_contrasena" name="nueva_contrasena">
+                                <input type="password" class="form-control" id="nueva_contrasena"
+                                    name="nueva_contrasena"
+                                    <?php echo ($usuario['rol'] === 'user') ? 'disabled' : ''; ?>>
                             </div>
 
                             <div class="mb-3">
                                 <label for="confirmar_contrasena" class="form-label">Confirmar Nueva Contraseña</label>
-                                <input type="password" class="form-control" id="confirmar_contrasena" name="confirmar_contrasena">
+                                <input type="password" class="form-control" id="confirmar_contrasena"
+                                    name="confirmar_contrasena"
+                                    <?php echo ($usuario['rol'] === 'user') ? 'disabled' : ''; ?>>
                             </div>
 
                             <button type="button" class="btn btn-primary w-100" id="btn-guardar">
@@ -88,18 +94,22 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
     </div>
 
     <!-- Alert fijo superior -->
-    <div id="alert-container" style="position: fixed; top: 2.8125rem; left: 50%; transform: translateX(-50%); z-index: 1050; width: 90%; max-width: 500px;"></div>
+    <div id="alert-container"
+        style="position: fixed; top: 2.8125rem; left: 50%; transform: translateX(-50%); z-index: 1050; width: 90%; max-width: 500px;">
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Función para obtener datos de los inputs
         function obtenerDatos() {
+            const rol = document.getElementById('rol').value;
+
             return {
                 action: 'actualizar_perfil',
                 nombre_usuario: document.getElementById('nombre_usuario').value.trim(),
-                antigua_contrasena: document.getElementById('antigua_contrasena').value,
-                nueva_contrasena: document.getElementById('nueva_contrasena').value,
-                confirmar_contrasena: document.getElementById('confirmar_contrasena').value
+                antigua_contrasena: rol === 'user' ? '' : document.getElementById('antigua_contrasena').value,
+                nueva_contrasena: rol === 'user' ? '' : document.getElementById('nueva_contrasena').value,
+                confirmar_contrasena: rol === 'user' ? '' : document.getElementById('confirmar_contrasena').value
             };
         }
 
@@ -153,7 +163,6 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
                 });
         }
 
-
         // Función para mostrar alertas fijas
         function mostrarAlerta(mensaje, tipo = 'danger') {
             const alertContainer = document.getElementById('alert-container');
@@ -165,9 +174,9 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
             alertDiv.className = `alert alert-${tipo} alert-dismissible fade show shadow-lg`;
             alertDiv.style.margin = '0';
             alertDiv.innerHTML = `
-            ${mensaje}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
 
             alertContainer.appendChild(alertDiv);
 
@@ -178,7 +187,6 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
                     alert.close();
                 }
             }, 3000);
-
         }
 
         // Escuchar click en el botón
@@ -195,5 +203,4 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
         });
     </script>
 </body>
-
 </html>
