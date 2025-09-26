@@ -9,7 +9,8 @@
     <link href="/assets/scss/bootstrap.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="/assets/style.css" rel="stylesheet">
+    <?php $version = filemtime(__DIR__ . '/assets/style.css'); ?>
+    <link href="/assets/style.css?v=<?php echo $version; ?>" rel="stylesheet">
 </head>
 
 <body>
@@ -60,7 +61,7 @@
                     <option value="mesa">Mesas</option>
                 </select>
             </div>
-            <div class="col-lg-3 col-md-6 mb-3">
+            <div class="col-lg-3 col-md-6 mb-3" style="<?= (isset($_SESSION['rol']) && $_SESSION['rol'] == 'admin') ? '' : 'display:none;' ?>">
                 <label class="form-label fw-semibold mb-2">Fecha</label>
                 <input type="date" id="filtroFecha" class="form-control" onchange="cargarPedidos()" value="<?= date('Y-m-d') ?>">
             </div>

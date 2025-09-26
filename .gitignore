@@ -1,4 +1,3 @@
-# Ignora la carpeta node_modules y todos sus archivos, incluidos los JSON
 node_modules
 package-lock.json
 package.json

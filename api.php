@@ -42,6 +42,9 @@ switch ($action) {
     case 'obtener_pedido':
         obtenerPedido($input['pedido_id']);
         break;
+    case 'actualizar_perfil':
+        actualizarPerfil($input);
+        break;
     
     default:
         echo json_encode(['error' => 'Acción no válida']);
@@ -50,13 +53,23 @@ switch ($action) {
 // =================== FUNCIONES ORIGINALES (MANTENIDAS) ===================
 function actualizar_metodo_pago($pdo, $pedidoId, $metodoPago) {
     try {
-        $stmt = $pdo->prepare("UPDATE pedidos SET metodo_pago = ? WHERE id = ?");
+        $stmt = $pdo->prepare("
+            UPDATE pedidos 
+            SET metodo_pago = ?, estado = 'completado'
+            WHERE id = ?
+        ");
         $stmt->execute([$metodoPago, $pedidoId]);
-        echo json_encode(['success' => true]);
+
+        if ($stmt->rowCount() > 0) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Pedido no encontrado']);
+        }
     } catch (PDOException $e) {
         echo json_encode(['error' => 'Error de base de datos: ' . $e->getMessage()]);
     }
 }
+
 
 function buscarProductos($query) {
     global $pdo;
@@ -395,6 +408,113 @@ function editarPedido($input) {
     } catch (Exception $e) {
         $pdo->rollBack();
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+function actualizarPerfil($data) {
+    global $pdo;
+    
+    session_start();
+    
+    // Verificar si el usuario ha iniciado sesión
+    if (!isset($_SESSION['id_usuario'])) {
+        echo json_encode(['success' => false, 'message' => 'Sesión no válida']);
+        return;
+    }
+    
+    $id_usuario_actual = $_SESSION['id_usuario'];
+    $nombre_usuario = trim($data['nombre_usuario'] ?? '');
+    $antigua_contrasena = $data['antigua_contrasena'] ?? '';
+    $nueva_contrasena = $data['nueva_contrasena'] ?? '';
+    $confirmar_contrasena = $data['confirmar_contrasena'] ?? '';
+    
+    // Validar nombre de usuario
+    if (empty($nombre_usuario)) {
+        echo json_encode(['success' => false, 'message' => 'El nombre de usuario es obligatorio']);
+        return;
+    }
+    
+    try {
+        // Obtener la contraseña actual de la base de datos
+        $stmt_user = $pdo->prepare("SELECT contrasena FROM usuarios WHERE id = :id");
+        $stmt_user->bindParam(':id', $id_usuario_actual);
+        $stmt_user->execute();
+        $user_data = $stmt_user->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$user_data) {
+            echo json_encode(['success' => false, 'message' => 'Usuario no encontrado']);
+            return;
+        }
+        
+        $contrasena_actual_db = $user_data['contrasena'];
+        
+        // Validaciones para cambio de contraseña
+        if (!empty($nueva_contrasena)) {
+            // Verificar contraseña antigua
+            if ($antigua_contrasena !== $contrasena_actual_db) {
+                echo json_encode(['success' => false, 'message' => 'La contraseña antigua es incorrecta']);
+                return;
+            }
+            
+            // Verificar que las nuevas contraseñas coincidan
+            if ($nueva_contrasena !== $confirmar_contrasena) {
+                echo json_encode(['success' => false, 'message' => 'Las nuevas contraseñas no coinciden']);
+                return;
+            }
+            
+            // Validar longitud de nueva contraseña
+            if (strlen($nueva_contrasena) < 4) {
+                echo json_encode(['success' => false, 'message' => 'La nueva contraseña debe tener al menos 4 caracteres']);
+                return;
+            }
+            
+            // Actualizar nombre de usuario y contraseña
+            $sql = "UPDATE usuarios SET nombre_usuario = :nombre_usuario, contrasena = :contrasena WHERE id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':nombre_usuario', $nombre_usuario);
+            $stmt->bindParam(':contrasena', $nueva_contrasena);
+            $stmt->bindParam(':id', $id_usuario_actual);
+            
+            $mensaje_exito = '¡Perfil y contraseña actualizados correctamente!';
+            
+        } else {
+            // Solo actualizar nombre de usuario
+            $sql = "UPDATE usuarios SET nombre_usuario = :nombre_usuario WHERE id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':nombre_usuario', $nombre_usuario);
+            $stmt->bindParam(':id', $id_usuario_actual);
+            
+            $mensaje_exito = '¡Perfil actualizado correctamente!';
+        }
+        
+        // Verificar si el nombre de usuario ya existe (excepto para el usuario actual)
+        $stmt_check = $pdo->prepare("SELECT COUNT(*) FROM usuarios WHERE nombre_usuario = :nombre_usuario AND id != :id");
+        $stmt_check->bindParam(':nombre_usuario', $nombre_usuario);
+        $stmt_check->bindParam(':id', $id_usuario_actual);
+        $stmt_check->execute();
+        
+        if ($stmt_check->fetchColumn() > 0) {
+            echo json_encode(['success' => false, 'message' => 'El nombre de usuario ya está en uso']);
+            return;
+        }
+        
+        // Ejecutar la actualización
+        if ($stmt->execute()) {
+            // Actualizar la sesión con el nuevo nombre de usuario
+            $_SESSION['nombre_usuario'] = $nombre_usuario;
+            
+            echo json_encode([
+                'success' => true, 
+                'message' => $mensaje_exito,
+                'nombre_usuario_actualizado' => true
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Error al actualizar el perfil']);
+        }
+        
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Error de base de datos: ' . $e->getMessage()]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Error interno del servidor']);
     }
 }
 ?>

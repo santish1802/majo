@@ -27,6 +27,7 @@ if (!isset($_SESSION['rol'])) {
     // Verificar permisos para páginas de admin
     if (
         strpos($current_path, '/admin/productos.php') !== false ||
+        strpos($current_path, '/admin/panel.php') !== false ||
         strpos($current_path, '/admin/combos.php') !== false
     ) {
 
@@ -61,6 +62,14 @@ if (!isset($_SESSION['rol'])) {
                 <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'user'): ?>
                     <li class="nav-item">
                         <a class="nav-link" href="/productos.php">Productos</a>
+                    </li>
+                <?php endif; ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="/caja.php">Caja</a>
+                </li>
+                <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'admin'): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/panel.php">Estadísticas</a>
                     </li>
                 <?php endif; ?>
                 <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'admin'): ?>
