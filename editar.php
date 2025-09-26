@@ -17,9 +17,7 @@ if ($pedidoId <= 0) {
     <?php $version = date('YmdHi');?>
     <link href="/assets/scss/bootstrap.css?v=<?php echo $version; ?>" rel="stylesheet">
     <link href="/assets/style.css?v=<?php echo $version; ?>" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
-
+    <link href="/assets/css/all.css" rel="stylesheet">
 </head>
 
 <body>
@@ -42,7 +40,7 @@ if ($pedidoId <= 0) {
             </div>
 
             <div class="col-md-6">
-                <div class="card">
+                <div class="card m-3">
                     <div class="card-header">
                         <h5><i class="fas fa-shopping-cart"></i> Items del Pedido</h5>
                     </div>
@@ -338,7 +336,7 @@ if ($pedidoId <= 0) {
                                     <div class="text-success">
                                         ${precioMostrado}
                                     </div>
-                                    ${item.notas ? `<small class="text-muted"><i class="fas fa-sticky-note"></i> ${item.notas}</small>` : ''}
+                                    ${item.notas ? `<small class="text-muted"><i class="fa-light fa-note-sticky me-1"></i> ${item.notas}</small>` : ''}
                                 </div>
                                 <div class="text-end">
                                     <div id="btn-cant" class="btn-group mb-2">
@@ -347,18 +345,18 @@ if ($pedidoId <= 0) {
                                         <button class="btn text-primary btn-outline-white btn-sm btn-cantidad" onclick="cambiarCantidad(${item.id}, 1)">+</button>
                                     </div>
                                     <div class="btns-pc">
-                                        <button class="btn px-4 btn-custom btn-dark" onclick="modificarItem(${item.id})"><i class="bi bi-pencil me-2"></i>Precio</button>
+                                        <button class="btn px-4 btn-custom btn-dark" onclick="modificarItem(${item.id})"><i class="fa-regular fa-pen-to-square me-2"></i>Precio</button>
                                         <button class="btn px-4 btn-custom btn-info btn-nota" onclick="agregarNotaItem(${item.id})">
-                                        <i class="bi bi-stickies me-2"></i><span class="texto-nota">Nota</span>
+                                        <i class="fa-regular fa-notes me-2"></i><span class="texto-nota">Nota</span>
                                         </button>
                                         <button class="btn px-4 btn-custom  btn-danger" onclick="eliminarItem(${item.id})"><i class="fas fa-trash"></i></button>
                                     </div>
                                 </div>
                             </div>
                             <div class="btns-mv d-flex justify-content-between align-items-center mt-2 gap-2">
-                                <button class="btn px-4 btn-custom flex-fill btn-dark" onclick="modificarItem(${item.id})"><i class="bi bi-pencil me-2"></i>Precio</button>
+                                <button class="btn px-4 btn-custom flex-fill btn-dark" onclick="modificarItem(${item.id})"><i class="fa-regular fa-pen-to-square me-2"></i>Precio</button>
                                 <button class="btn px-4 btn-custom flex-fill btn-info btn-nota" onclick="agregarNotaItem(${item.id})">
-                                <i class="bi bi-stickies me-2"></i><span class="texto-nota">Nota</span>
+                                <i class="fa-regular fa-notes me-2"></i><span class="texto-nota">Nota</span>
                                 </button>
                                 <button class="btn px-4 btn-custom flex-fill btn-danger" onclick="eliminarItem(${item.id})"><i class="fas fa-trash"></i></button>
                             </div>

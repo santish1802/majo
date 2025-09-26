@@ -198,6 +198,10 @@ nav {
 .bg-white.bg-opacity-25.rounded-circle.p-3 {
 	display: flex;
 	aspect-ratio: 1 / 1;
+	align-items: center;
+	justify-content: center;
+	width: 3.5rem;
+	height: 3.5rem;
 }
 .bg-white.bg-opacity-25.rounded-circle.p-3 i {
 	display: flex;
@@ -299,4 +303,14 @@ a {
 
 .resumen-caja p {
 	font-size: 1.15rem;
+}
+
+.icon-thin::before {
+  font-weight: 100 !important; /* fino */
+}
+.icon-normal::before {
+  font-weight: 400 !important; /* normal */
+}
+.icon-bold::before {
+  font-weight: 600 !important; /* grueso */
 }

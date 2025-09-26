@@ -6,11 +6,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MAJO - Gestión de Pedidos</title>
-    <link href="/assets/scss/bootstrap.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
-    <?php $version = filemtime(__DIR__ . '/assets/style.css'); ?>
+    <?php $version = date('YmdHi');?>
+    <link href="/assets/scss/bootstrap.css?v=<?php echo $version; ?>" rel="stylesheet">
     <link href="/assets/style.css?v=<?php echo $version; ?>" rel="stylesheet">
+    <link href="/assets/css/all.css" rel="stylesheet">
 </head>
 
 <body>
@@ -23,16 +22,16 @@
                 <div class="header-card bg-primary text-white p-4 rounded-4">
                     <div class="d-flex justify-content-between align-items-center flex-wrap">
                         <div class="mb-3 mb-md-0">
-                            <h1 class="mb-2"><i class="bi bi-clipboard-data me-3"></i>
+                            <h1 class="mb-2"><i class="fa-light fa-clipboard-list-check me-2"></i>
                                 Gestión de Pedidos
                             </h1>
                         </div>
                         <div class="d-flex gap-2 flex-wrap">
-                            <a href="index.php" class="btn btn-light rounded-pill px-4">
-                                <i class="bi bi-plus-circle me-2"></i>Nuevo Pedido
+                            <a href="index.php" class="btn btn-white rounded-pill px-4">
+                                <i class="fa-regular fa-circle-plus me-2"></i>Nuevo Pedido
                             </a>
                             <button class="btn btn-outline-light rounded-pill px-4" onclick="cargarPedidos();">
-                                <i class="bi bi-arrow-clockwise me-2"></i>Actualizar
+                                <i class="fa-regular fa-arrow-rotate-right me-2"></i>Actualizar
                             </button>
                         </div>
                     </div>
@@ -70,7 +69,7 @@
                 <div class="input-group">
                     <input type="text" id="buscarPedido" class="form-control" placeholder="Buscar pedido #..." onkeyup="filtrarPedidos()">
                     <span class="input-group-text bg-primary border-0">
-                        <i class="bi bi-search text-white"></i>
+                        <i class="fa-solid fa-magnifying-glass text-white"></i>
                     </span>
                 </div>
             </div>
@@ -88,7 +87,7 @@
                                 <h2 class="mb-0 fw-bold" id="statPendientes">0</h2>
                             </div>
                             <div class="bg-white bg-opacity-25 rounded-circle p-3">
-                                <i class="bi bi-clock-fill fs-3"></i>
+                                <i class="fa-solid fa-clock fs-3"></i>
                             </div>
                         </div>
                     </div>
@@ -103,7 +102,7 @@
                                 <h2 class="mb-0 fw-bold" id="statCompletados">0</h2>
                             </div>
                             <div class="bg-white bg-opacity-25 rounded-circle p-3">
-                                <i class="bi bi-check-circle-fill fs-3"></i>
+                                <i class="fa-solid fa-circle-check fs-3"></i>
                             </div>
                         </div>
                     </div>
@@ -119,7 +118,7 @@
                                     <h2 class="mb-0 fw-bold" id="statVentas">S/. 0.00</h2>
                                 </div>
                                 <div class="bg-white bg-opacity-25 rounded-circle p-3">
-                                    <i class="bi bi-currency-dollar fs-3"></i>
+                                    <i class="fa-solid fa-dollar-sign fs-3"></i>
                                 </div>
                             </div>
                         </div>
@@ -134,7 +133,7 @@
                                     <h2 class="mb-0 fw-bold" id="statTotal">0</h2>
                                 </div>
                                 <div class="bg-white bg-opacity-25 rounded-circle p-3">
-                                    <i class="bi bi-receipt-cutoff fs-3"></i>
+                                    <i class="fa-light fa-receipt fs-3"></i>
                                 </div>
                             </div>
                         </div>
@@ -154,7 +153,7 @@
             <div class="modal-content border-0">
                 <div class="modal-header border-0 pb-0">
                     <h5 class="modal-title fw-bold" id="modalTitulo">
-                        <i class="bi bi-eye-fill me-2 text-primary"></i>
+                        <i class="fa-solid fa-eye me-2 text-primary"></i>
                         Detalles del Pedido
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -163,7 +162,7 @@
                 </div>
                 <div class="modal-footer border-0 pt-0" id="modalFooter">
                     <button type="button" class="btn btn-success btn-custom px-4" id="btnGuardarMetodoPago" style="display:none;">
-                        <i class="bi bi-floppy-fill me-2"></i>Guardar Método de Pago
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Guardar Método de Pago
                     </button>
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">
                         Cerrar
@@ -222,7 +221,7 @@
                 container.innerHTML = `
                     <div class="col-12">
                         <div class="no-pedidos text-center">
-                            <i class="bi bi-clipboard-x display-1 text-muted mb-4"></i>
+                            <i class="fa-light fa-clipboard-question display-1 text-muted mb-4"></i>
                             <h3 class="text-muted mb-2">No hay pedidos para mostrar</h3>
                             <p class="text-muted">Los pedidos aparecerán aquí cuando se registren</p>
                         </div>
@@ -245,23 +244,23 @@
                                 <span class="badge bg-light text-muted fw-normal">Pedido #${pedido.id}</span>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-outline-primary rounded-pill dropdown-toggle" data-bs-toggle="dropdown">
-                                        <i class="bi bi-gear"></i>
+                                        <i class="fa-solid fa-gear"></i>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li><a class="dropdown-item" href="javascript:void(0)" onclick="verDetalles(${pedido.id})">
-                                            <i class="bi bi-eye me-2"></i>Ver Detalles</a></li>
+                                            <i class="fa-solid fa-eye me-2"></i>Ver Detalles</a></li>
                                         <li><a class="dropdown-item" href="editar.php?id=${pedido.id}">
-                                            <i class="bi bi-pencil me-2"></i>Editar</a></li>
+                                            <i class="fa-solid fa-pen me-2"></i>Editar</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" href="javascript:void(0)" onclick="cambiarEstado(${pedido.id}, 'pendiente')">
-                                            <i class="bi bi-clock text-warning me-2"></i>Marcar Pendiente</a></li>
+                                            <i class="fa-solid fa-clock text-warning me-2"></i>Marcar Pendiente</a></li>
                                         <li><a class="dropdown-item" href="javascript:void(0)" onclick="cambiarEstado(${pedido.id}, 'completado')">
-                                            <i class="bi bi-check-circle text-success me-2"></i>Marcar Completado</a></li>
+                                            <i class="fa-solid fa-circle-check text-success me-2"></i>Marcar Completado</a></li>
                                         <li><a class="dropdown-item" href="javascript:void(0)" onclick="cambiarEstado(${pedido.id}, 'cancelado')">
-                                            <i class="bi bi-x-circle text-danger me-2"></i>Cancelar</a></li>
+                                            <i class="fa-solid fa-circle-xmark text-danger me-2"></i>Cancelar</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="eliminarPedido(${pedido.id})">
-                                            <i class="bi bi-trash me-2"></i>Eliminar</a></li>
+                                            <i class="fa-solid fa-trash me-2"></i>Eliminar</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -292,7 +291,7 @@
                                             <span class="badge bg-primary rounded-pill">${item.cantidad}</span>
                                             <small class="fw-semibold">${item.nombre}</small>
                                         </div>
-                                        ${item.notas_item ? `<small class="text-muted d-block"><i class="bi bi-sticky me-1" style="line-height: normal;"></i>${item.notas_item}</small>` : ''}
+                                        ${item.notas_item ? `<small class="text-muted d-block"><i class="fa-light fa-note-sticky me-1" style="line-height: normal;"></i>${item.notas_item}</small>` : ''}
                                     </div>
                                 `).join('')}
                                 ${pedido.items.length > 3 ? `
@@ -304,7 +303,7 @@
                             
                             ${pedido.notas ? `
                                 <div class="alert alert-light border-0 rounded-3 p-3 mb-0">
-                                    <small class="fw-semibold"><i class="bi bi-chat-text me-1"></i>Notas:</small>
+                                    <small class="fw-semibold"><i class="fa-solid fa-comment me-1"></i>Notas:</small>
                                     <small class="d-block mt-1">${pedido.notas}</small>
                                 </div>
                             ` : ''}
@@ -314,14 +313,14 @@
                             <div class="d-grid gap-2 d-md-flex">
                                 ${pedido.estado === 'pendiente' ? `
                                     <button class="btn btn-success btn-custom flex-fill" onclick="cambiarEstado(${pedido.id}, 'completado')">
-                                        <i class="bi bi-check-circle me-2"></i>Completar
+                                        <i class="fa-solid fa-circle-check me-2"></i>Completar
                                     </button>
                                 ` : ''}
                                 <button class="btn btn-info btn-custom flex-fill" onclick="verDetalles(${pedido.id})">
-                                    <i class="bi bi-eye me-2"></i>Ver
+                                    <i class="fa-solid fa-eye me-2"></i>Ver
                                 </button>
                                 <a href="editar.php?id=${pedido.id}" class="btn btn-dark btn-custom flex-fill">
-                                    <i class="bi bi-pencil me-2"></i>Editar
+                                    <i class="fa-solid fa-pen me-2"></i>Editar
                                 </a>
                             </div>
                         </div>
@@ -450,28 +449,28 @@ function verDetalles(pedidoId) {
         <div class="row mb-4">
             <div class="col-md-6 mb-3">
                 <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-hash text-primary"></i>
+                    <i class="fa-solid fa-hashtag text-primary"></i>
                     <strong>Pedido:</strong>
                     <span class="badge bg-primary rounded-pill">#${pedido.id}</span>
                 </div>
             </div>
             <div class="col-md-6 mb-3">
                 <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-flag text-primary"></i>
+                    <i class="fa-solid fa-flag text-primary"></i>
                     <strong>Estado:</strong>
                     <span class="status-badge badge-${pedido.estado}">${pedido.estado.toUpperCase()}</span>
                 </div>
             </div>
             <div class="col-md-6 mb-3">
                 <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-flag-alt text-primary"></i>
+                    <i class="fa-solid fa-map-pin text-primary"></i>
                     <strong>Ubicación:</strong>
                     <span class="status-badge badge-ubicacion">${pedido.ubicacion.toUpperCase()}</span>
                 </div>
             </div>
             <div class="col-md-6 mb-3">
                 <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-calendar-event text-primary"></i>
+                    <i class="fa-solid fa-calendar-days text-primary"></i>
                     <strong>Fecha:</strong>
                     <span class="text-muted">${formatearFecha(pedido.fecha_pedido)}</span>
                 </div>
@@ -480,7 +479,7 @@ function verDetalles(pedidoId) {
         
         <div class="mb-4">
             <h6 class="fw-bold mb-3">
-                <i class="bi bi-bag text-primary me-2"></i>
+                <i class="fa-solid fa-bag-shopping text-primary me-2"></i>
                 Items del pedido
             </h6>
             <div class="list-group">
@@ -530,7 +529,7 @@ function verDetalles(pedidoId) {
                                 ${item.notas_item ? `
                                     <div>
                                         <small class="text-muted">
-                                            <i class="bi bi-sticky me-1"></i>
+                                            <i class="fa-light fa-note-sticky me-1"></i>
                                             ${item.notas_item}
                                         </small>
                                     </div>
@@ -549,7 +548,7 @@ function verDetalles(pedidoId) {
         ${pedido.notas ? `
             <div class="alert alert-info rounded-3 mb-4">
                 <h6 class="alert-heading">
-                    <i class="bi bi-chat-text me-2"></i>
+                    <i class="fa-solid fa-comment me-2"></i>
                     Notas del pedido
                 </h6>
                 <p class="mb-0">${pedido.notas}</p>
@@ -559,7 +558,7 @@ function verDetalles(pedidoId) {
         <div class="card rounded-3 mb-4" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
             <div class="card-body">
                 <h6 class="card-title fw-bold mb-3">
-                    <i class="bi bi-calculator text-primary me-2"></i>
+                    <i class="fa-solid fa-calculator text-primary me-2"></i>
                     Resumen de pago
                 </h6>
                 <div class="row">
@@ -591,12 +590,12 @@ function verDetalles(pedidoId) {
         <div class="card rounded-3">
             <div class="card-body">
                 <h6 class="card-title fw-bold mb-3">
-                    <i class="bi bi-credit-card text-primary me-2"></i>
+                    <i class="fa-solid fa-credit-card text-primary me-2"></i>
                     Método de Pago
                 </h6>
                 <div class="input-group">
                     <label class="input-group-text" for="metodoPagoSelect" style="background: var(--primary-color);">
-                        <i class="bi bi-wallet2 me-2"></i>
+                        <i class="fa-solid fa-wallet me-2"></i>
                         Método
                     </label>
                     <select class="form-select" id="metodoPagoSelect" style="background: var(--glass-bg);">
@@ -653,7 +652,7 @@ function verDetalles(pedidoId) {
                 <div class="toast align-items-center text-white bg-${type} border-0" id="successToast" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="d-flex">
                         <div class="toast-body">
-                            <i class="bi bi-check-circle me-2"></i>
+                            <i class="fa-solid fa-circle-check me-2"></i>
                             ${message}
                         </div>
                         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
