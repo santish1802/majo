@@ -47,11 +47,10 @@
             <div class="col-lg-3 col-md-6 mb-3">
                 <label class="form-label fw-semibold mb-2">Estado</label>
                 <select id="filtroEstado" class="form-select" onchange="filtrarPedidos()">
-                    <option value="">Todos los estados</option>
-                    <option value="pendiente" selected>Pendientes</option>
+                    <option value="" <?= ($_SESSION['rol'] === 'admin') ? 'selected' : '' ?>>Todos los estados</option>
+                    <option value="pendiente" <?= ($_SESSION['rol'] !== 'admin') ? 'selected' : '' ?>>Pendientes</option>
                     <option value="completado">Completados</option>
                     <option value="cancelado">Cancelados</option>
-                </select>
                 </select>
             </div>
             <div class="col-lg-3 col-md-6 mb-3">
