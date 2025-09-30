@@ -6,6 +6,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="El título atractivo para WhatsApp"/>
+    <meta property="og:description" content="Una descripción clara y concisa de tu contenido."/>
+    <meta property="og:url" content="https://www.tuweb.com/pagina-ejemplo"/>
+    <meta property="og:image" content="assets/img/xd.png"/>
+    <meta property="og:type" content="article"/>
     <title>MAJO - Sistema de Pedidos</title>
     <?php 
     include $_SERVER['DOCUMENT_ROOT'] . "/assets/img/favicon/favicon.php";
