@@ -3,4 +3,4 @@
 <link rel="shortcut icon" href="/assets/img/favicon3/favicon.ico" />
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon3/apple-touch-icon.png" />
 <meta name="apple-mobile-web-app-title" content="MAJO" />
-<link rel="manifest" href="/assets/img/favicon3/site.webmanifest" />
+<link rel="manifest" href="/assets/img/favicon3/manifest.json" />
