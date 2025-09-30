@@ -13,7 +13,7 @@
     <meta property="og:type" content="article"/>
     <title>MAJO - Sistema de Pedidos</title>
     <?php 
-    include $_SERVER['DOCUMENT_ROOT'] . "/assets/img/favicon/favicon.php";
+    include $_SERVER['DOCUMENT_ROOT'] . "/assets/img/favicon.php";
     ?>   
     <?php $version = date('YmdHi');?>
     <link href="/assets/scss/bootstrap.css?v=<?php echo $version; ?>" rel="stylesheet">

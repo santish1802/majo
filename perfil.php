@@ -25,7 +25,7 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil</title>
     <?php 
-    include $_SERVER['DOCUMENT_ROOT'] . "/assets/img/favicon/favicon.php";
+    include $_SERVER['DOCUMENT_ROOT'] . "/assets/img/favicon.php";
     ?>   
     <?php $version = date('YmdHi'); ?>
     <link href="/assets/scss/bootstrap.css?v=<?php echo $version; ?>" rel="stylesheet">

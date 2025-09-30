@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MAJO - Gestión de Productos</title>
     <?php 
-    include $_SERVER['DOCUMENT_ROOT'] . "/assets/img/favicon/favicon.php";
+    include $_SERVER['DOCUMENT_ROOT'] . "/assets/img/favicon.php";
     ?>   
     <link href="/assets/scss/bootstrap.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
