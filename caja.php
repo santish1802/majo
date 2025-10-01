@@ -94,7 +94,13 @@ $stmt_saldo_manual = $pdo->prepare("SELECT SUM(monto) as saldo FROM caja_movimie
 $stmt_saldo_manual->execute([$fecha_seleccionada]);
 $saldo_manual = $stmt_saldo_manual->fetch(PDO::FETCH_ASSOC)['saldo'] ?? 0;
 
-$stmt_pedidos = $pdo->prepare("SELECT SUM(total) as ingresos FROM pedidos WHERE metodo_pago = 'Efectivo' AND DATE(fecha_pedido) = ?");
+$stmt_pedidos = $pdo->prepare("
+    SELECT SUM(pp.monto) AS ingresos
+    FROM pedido_pagos pp
+    INNER JOIN pedidos p ON pp.pedido_id = p.id
+    WHERE pp.metodo_pago = 'Efectivo'
+      AND DATE(p.fecha_pedido) = ?
+");
 $stmt_pedidos->execute([$fecha_seleccionada]);
 $ingresos_pedidos = $stmt_pedidos->fetch(PDO::FETCH_ASSOC)['ingresos'] ?? 0;
 

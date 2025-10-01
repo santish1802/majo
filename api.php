@@ -36,11 +36,12 @@ switch ($action) {
     case 'editar_pedido':
         editarPedido($input);
         break;
-    case 'actualizar_metodo_pago':
-        actualizar_metodo_pago($pdo, $input['pedido_id'], $input['metodo_pago']);
-        break;
+
     case 'obtener_pedido':
         obtenerPedido($input['pedido_id']);
+        break;
+    case 'registrar_pago':
+        registrarPago($input);
         break;
     case 'actualizar_perfil':
         actualizarPerfil($input);
@@ -50,26 +51,48 @@ switch ($action) {
         echo json_encode(['error' => 'Acción no válida']);
 }
 
-// =================== FUNCIONES ORIGINALES (MANTENIDAS) ===================
-function actualizar_metodo_pago($pdo, $pedidoId, $metodoPago) {
-    try {
-        $stmt = $pdo->prepare("
-            UPDATE pedidos 
-            SET metodo_pago = ?, estado = 'completado'
-            WHERE id = ?
-        ");
-        $stmt->execute([$metodoPago, $pedidoId]);
+function registrarPago($input) {
+    global $pdo;
 
-        if ($stmt->rowCount() > 0) {
-            echo json_encode(['success' => true]);
-        } else {
-            echo json_encode(['success' => false, 'error' => 'Pedido no encontrado']);
+    $pedidoId = $input['pedido_id'] ?? null;
+    $pagos = $input['pagos'] ?? [];
+
+    if (!$pedidoId || empty($pagos)) {
+        echo json_encode(['success' => false, 'error' => 'Datos de pago incompletos.']);
+        return;
+    }
+
+    try {
+        $pdo->beginTransaction();
+
+        // 1. (Opcional pero recomendado) Borrar pagos anteriores para este pedido.
+        // Esto evita duplicados si se intenta pagar de nuevo.
+        $stmt = $pdo->prepare("DELETE FROM pedido_pagos WHERE pedido_id = ?");
+        $stmt->execute([$pedidoId]);
+
+        // 2. Insertar cada nuevo pago recibido
+        $stmt = $pdo->prepare("INSERT INTO pedido_pagos (pedido_id, metodo_pago, monto) VALUES (?, ?, ?)");
+        foreach ($pagos as $pago) {
+            if (empty($pago['metodo_pago']) || !is_numeric($pago['monto'])) {
+                throw new Exception('Cada pago debe tener un método y un monto válido.');
+            }
+            $stmt->execute([$pedidoId, $pago['metodo_pago'], $pago['monto']]);
         }
-    } catch (PDOException $e) {
-        echo json_encode(['error' => 'Error de base de datos: ' . $e->getMessage()]);
+
+        // 3. Actualizar el estado del pedido principal a 'completado'
+        $stmt = $pdo->prepare("UPDATE pedidos SET estado = 'completado' WHERE id = ?");
+        $stmt->execute([$pedidoId]);
+        
+        // Si todo fue bien, confirmar los cambios
+        $pdo->commit();
+        echo json_encode(['success' => true]);
+
+    } catch (Exception $e) {
+        // Si algo falló, revertir todos los cambios
+        $pdo->rollBack();
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 }
-
 
 function buscarProductos($query) {
     global $pdo;
@@ -237,6 +260,9 @@ function obtenerPedidos($fecha) {
                     'es_combo' => $item['combo_id'] ? true : false
                 ];
             }, $items);
+                        $stmt_pagos = $pdo->prepare("SELECT metodo_pago, monto FROM pedido_pagos WHERE pedido_id = ?");
+            $stmt_pagos->execute([$pedido['id']]);
+            $pedido['pagos'] = $stmt_pagos->fetchAll(PDO::FETCH_ASSOC);
         }
         
         echo json_encode($pedidos);
