@@ -6,10 +6,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MAJO - Gestión de Pedidos</title>
-    <?php 
+    <?php
     include $_SERVER['DOCUMENT_ROOT'] . "/assets/img/favicon.php";
     ?>
-    <?php $version = date('YmdHi');?>
+    <?php $version = date('YmdHi'); ?>
     <link href="/assets/scss/bootstrap.css?v=<?php echo $version; ?>" rel="stylesheet">
     <link href="/assets/style.css?v=<?php echo $version; ?>" rel="stylesheet">
     <link href="/assets/css/all.css" rel="stylesheet">
@@ -110,36 +110,36 @@
                 </div>
             </div>
             <?php if ($_SESSION['rol'] == 'admin'): ?>
-            <div class="col-xl-3 col-md-6 mb-2">
-                <div class="card stat-card bg-info text-white rounded-4 border-0">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-white-50 text-uppercase fw-bold mb-2">Total Ventas</h6>
-                                <h2 class="mb-0 fw-bold" id="statVentas">S/. 0.00</h2>
-                            </div>
-                            <div class="bg-white bg-opacity-25 rounded-circle p-3">
-                                <i class="fa-solid fa-dollar-sign fs-3"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-md-6 mb-2">
-                <div class="card stat-card bg-dark text-white rounded-4 border-0">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-white-50 text-uppercase fw-bold mb-2">Total Pedidos</h6>
-                                <h2 class="mb-0 fw-bold" id="statTotal">0</h2>
-                            </div>
-                            <div class="bg-white bg-opacity-25 rounded-circle p-3">
-                                <i class="fa-light fa-receipt fs-3"></i>
+                <div class="col-xl-3 col-md-6 mb-2">
+                    <div class="card stat-card bg-info text-white rounded-4 border-0">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-white-50 text-uppercase fw-bold mb-2">Total Ventas</h6>
+                                    <h2 class="mb-0 fw-bold" id="statVentas">S/. 0.00</h2>
+                                </div>
+                                <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                                    <i class="fa-solid fa-dollar-sign fs-3"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+                <div class="col-xl-3 col-md-6 mb-2">
+                    <div class="card stat-card bg-dark text-white rounded-4 border-0">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-white-50 text-uppercase fw-bold mb-2">Total Pedidos</h6>
+                                    <h2 class="mb-0 fw-bold" id="statTotal">0</h2>
+                                </div>
+                                <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                                    <i class="fa-light fa-receipt fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             <?php endif; ?>
         </div>
 
@@ -148,7 +148,7 @@
     </div>
 
     <div class="modal fade" id="modalDetalles" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
             <div class="modal-content border-0">
                 <div class="modal-header border-0 pb-0">
                     <h5 class="modal-title fw-bold" id="modalTitulo">
@@ -169,7 +169,7 @@
     </div>
 
     <div class="modal fade" id="modalPago" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
             <div class="modal-content border-0">
                 <div class="modal-header border-0">
                     <h5 class="modal-title fw-bold">
@@ -205,7 +205,7 @@
                                     0.00</span></h5>
                         </div>
                         <div id="pagosDivididosList" class="mb-3">
-                            </div>
+                        </div>
                         <button class="btn btn-outline-primary rounded-pill w-100" id="btnAgregarPago">
                             <i class="fa-solid fa-plus me-2"></i>Añadir Otro Pago
                         </button>
@@ -225,78 +225,78 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-    let pedidos = [];
-    let modalPagoInstance = null; // Instancia del modal de pago
+        let pedidos = [];
+        let modalPagoInstance = null; // Instancia del modal de pago
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar la instancia del modal de pago una vez
-        const modalPagoEl = document.getElementById('modalPago');
-        if (modalPagoEl) {
-            modalPagoInstance = new bootstrap.Modal(modalPagoEl);
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar la instancia del modal de pago una vez
+            const modalPagoEl = document.getElementById('modalPago');
+            if (modalPagoEl) {
+                modalPagoInstance = new bootstrap.Modal(modalPagoEl);
+            }
+
+            cargarPedidos();
+            setInterval(cargarPedidos, 300000);
+
+            // Event listener para el switch de pago dividido
+            document.getElementById('pagoDivididoSwitch').addEventListener('change', function() {
+                const pagoNormal = document.getElementById('pagoNormalContainer');
+                const pagoDividido = document.getElementById('pagoDivididoContainer');
+                if (this.checked) {
+                    pagoNormal.style.display = 'none';
+                    pagoDividido.style.display = 'block';
+                    // Si la lista está vacía, agregar el primer campo de pago
+                    if (document.getElementById('pagosDivididosList').childElementCount === 0) {
+                        agregarCampoPago();
+                    }
+                } else {
+                    pagoNormal.style.display = 'block';
+                    pagoDividido.style.display = 'none';
+                }
+            });
+
+            // Event listener para el botón "Añadir Otro Pago"
+            document.getElementById('btnAgregarPago').addEventListener('click', agregarCampoPago);
+
+            // Event listener para el botón de confirmar pago
+            document.getElementById('btnConfirmarPago').addEventListener('click', function() {
+                const pedidoId = this.dataset.pedidoId;
+                registrarPago(pedidoId);
+            });
+
+        });
+
+        function cargarPedidos() {
+            const fecha = document.getElementById('filtroFecha').value;
+
+            fetch('api.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'obtener_pedidos',
+                        fecha: fecha
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    pedidos = data;
+                    mostrarPedidos();
+                    actualizarEstadisticas();
+                    filtrarPedidos();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar pedidos');
+                });
         }
 
-        cargarPedidos();
-        setInterval(cargarPedidos, 300000);
+        function mostrarPedidos() {
+            const container = document.getElementById('listaPedidos');
 
-        // Event listener para el switch de pago dividido
-        document.getElementById('pagoDivididoSwitch').addEventListener('change', function() {
-            const pagoNormal = document.getElementById('pagoNormalContainer');
-            const pagoDividido = document.getElementById('pagoDivididoContainer');
-            if (this.checked) {
-                pagoNormal.style.display = 'none';
-                pagoDividido.style.display = 'block';
-                // Si la lista está vacía, agregar el primer campo de pago
-                if (document.getElementById('pagosDivididosList').childElementCount === 0) {
-                    agregarCampoPago();
-                }
-            } else {
-                pagoNormal.style.display = 'block';
-                pagoDividido.style.display = 'none';
-            }
-        });
-
-        // Event listener para el botón "Añadir Otro Pago"
-        document.getElementById('btnAgregarPago').addEventListener('click', agregarCampoPago);
-
-        // Event listener para el botón de confirmar pago
-        document.getElementById('btnConfirmarPago').addEventListener('click', function() {
-            const pedidoId = this.dataset.pedidoId;
-            registrarPago(pedidoId);
-        });
-
-    });
-
-    function cargarPedidos() {
-        const fecha = document.getElementById('filtroFecha').value;
-
-        fetch('api.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action: 'obtener_pedidos',
-                    fecha: fecha
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                pedidos = data;
-                mostrarPedidos();
-                actualizarEstadisticas();
-                filtrarPedidos();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al cargar pedidos');
-            });
-    }
-
-    function mostrarPedidos() {
-        const container = document.getElementById('listaPedidos');
-
-        if (pedidos.length === 0) {
-            container.innerHTML = `
+            if (pedidos.length === 0) {
+                container.innerHTML = `
                 <div class="col-12">
                     <div class="no-pedidos text-center">
                         <i class="fa-light fa-clipboard-question display-1 text-muted mb-4"></i>
@@ -304,18 +304,18 @@
                         <p class="text-muted">Los pedidos aparecerán aquí cuando se registren</p>
                     </div>
                 </div>`;
-            return;
-        }
+                return;
+            }
 
-        container.innerHTML = pedidos.map(pedido => {
-            // Determinar si hay pagos registrados para este pedido
-            const tienePagos = pedido.pagos && pedido.pagos.length > 0;
-            const pagoInfo = tienePagos ?
-                pedido.pagos.map(p =>
-                    `<span class="badge bg-success rounded-pill">${p.metodo_pago}</span>`).join(' ') :
-                `<span class="badge bg-danger rounded-pill">No pagado</span>`;
+            container.innerHTML = pedidos.map(pedido => {
+                // Determinar si hay pagos registrados para este pedido
+                const tienePagos = pedido.pagos && pedido.pagos.length > 0;
+                const pagoInfo = tienePagos ?
+                    pedido.pagos.map(p =>
+                        `<span class="badge bg-success rounded-pill">${p.metodo_pago}</span>`).join(' ') :
+                    `<span class="badge bg-danger rounded-pill">No pagado</span>`;
 
-            return `
+                return `
             <div class="col-xl-4 col-lg-6 col-md-6 mb-4 pedido-item" 
                     data-estado="${pedido.estado}" 
                     data-ubicacion="${pedido.ubicacion.toLowerCase()}" 
@@ -393,193 +393,247 @@
                     </div>
                 </div>
             </div>`;
-        }).join('');
-    }
-
-    // Funciones de ayuda
-    function getEstadoColor(estado) {
-        switch (estado) {
-            case 'pendiente':
-                return 'warning';
-            case 'completado':
-                return 'success';
-            case 'cancelado':
-                return 'danger';
-            default:
-                return 'secondary';
+            }).join('');
         }
-    }
 
-    function formatearFecha(fecha) {
-        return new Date(fecha).toLocaleString('es-PE', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-
-    function actualizarEstadisticas() {
-        const pendientes = pedidos.filter(p => p.estado === 'pendiente').length;
-        const completados = pedidos.filter(p => p.estado === 'completado').length;
-        const totalVentas = pedidos.filter(p => p.estado !== 'cancelado')
-            .reduce((sum, p) => sum + parseFloat(p.total), 0);
-
-        document.getElementById('statPendientes').textContent = pendientes;
-        document.getElementById('statCompletados').textContent = completados;
-        <?php if ($_SESSION['rol'] == 'admin'): ?>
-        document.getElementById('statVentas').textContent = `S/. ${totalVentas.toFixed(2)}`;
-        document.getElementById('statTotal').textContent = pedidos.length;
-        <?php endif; ?>
-    }
-
-    function filtrarPedidos() {
-        const estado = document.getElementById('filtroEstado').value;
-        const ubicacion = document.getElementById('filtroUbicacion').value;
-        const buscar = document.getElementById('buscarPedido').value.toLowerCase();
-
-        document.querySelectorAll('.pedido-item').forEach(item => {
-            const itemEstado = item.dataset.estado;
-            const itemUbicacion = item.dataset.ubicacion;
-            const itemId = item.dataset.id;
-            let mostrar = true;
-            if (estado && itemEstado !== estado) mostrar = false;
-            if (ubicacion === 'mesa' && !itemUbicacion.includes('mesa')) mostrar = false;
-            else if (ubicacion && ubicacion !== 'mesa' && itemUbicacion !== ubicacion) mostrar = false;
-            if (buscar && !itemId.includes(buscar)) mostrar = false;
-            item.style.display = mostrar ? 'block' : 'none';
-        });
-    }
-
-    function cambiarEstado(pedidoId, nuevoEstado) {
-        if (!confirm(`¿Cambiar estado a "${nuevoEstado}"?`)) return;
-        fetch('api.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action: 'cambiar_estado',
-                    pedido_id: pedidoId,
-                    estado: nuevoEstado
-                })
-            })
-            .then(response => response.json())
-            .then(result => result.success ? cargarPedidos() : alert('Error al cambiar estado'));
-    }
-
-    function eliminarPedido(pedidoId) {
-        if (!confirm('¿Estás seguro de eliminar este pedido? Esta acción no se puede deshacer.')) return;
-        fetch('api.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action: 'eliminar_pedido',
-                    pedido_id: pedidoId
-                })
-            })
-            .then(response => response.json())
-            .then(result => result.success ? cargarPedidos() : alert('Error al eliminar pedido'));
-    }
-
-function verDetalles(pedidoId) {
-        const pedido = pedidos.find(p => p.id === pedidoId);
-        const content = document.getElementById('modalDetallesContent');
-        
-        // --- INICIO: LÓGICA para procesar pagos ---
-        const tienePagos = pedido.pagos && pedido.pagos.length > 0;
-        const esPagoDividido = tienePagos && pedido.pagos.length > 1;
-        
-        let pagosDetalleHTML = '';
-
-        if (esPagoDividido) {
-            // Agrupar los pagos por método y sumar los montos
-            const pagosAgrupados = pedido.pagos.reduce((acc, pago) => {
-                acc[pago.metodo_pago] = (acc[pago.metodo_pago] || 0) + parseFloat(pago.monto);
-                return acc;
-            }, {});
-
-            // Generar el HTML para el detalle del pago dividido
-            pagosDetalleHTML = `
-                <div class="card rounded-3 mb-4 border-info bg-info-subtle">
-                    <div class="card-body">
-                        <h6 class="card-title fw-bold mb-3 text-info"><i class="fa-solid fa-receipt me-2"></i>Detalle de Pago Dividido</h6>
-                        <ul class="list-group list-group-flush bg-transparent">
-                            ${Object.entries(pagosAgrupados).map(([metodo, monto]) => `
-                                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 py-1 border-0">
-                                    <span class="text-dark fw-medium">${metodo}:</span>
-                                    <span class="fw-bold">S/. ${monto.toFixed(2)}</span>
-                                </li>
-                            `).join('')}
-                        </ul>
-                    </div>
-                </div>
-            `;
+        // Funciones de ayuda
+        function getEstadoColor(estado) {
+            switch (estado) {
+                case 'pendiente':
+                    return 'warning';
+                case 'completado':
+                    return 'success';
+                case 'cancelado':
+                    return 'danger';
+                default:
+                    return 'secondary';
+            }
         }
-        // --- FIN: LÓGICA para procesar pagos ---
 
-        content.innerHTML = `
-            <div class="row mb-4">
-                <div class="col-md-6 mb-3"><div class="d-flex align-items-center gap-2"><i class="fa-solid fa-hashtag text-primary"></i><strong>Pedido:</strong><span class="badge bg-primary rounded-pill">#${pedido.id}</span></div></div>
-                <div class="col-md-6 mb-3"><div class="d-flex align-items-center gap-2"><i class="fa-solid fa-flag text-primary"></i><strong>Estado:</strong><span class="status-badge badge-${pedido.estado}">${pedido.estado.toUpperCase()}</span></div></div>
-                <div class="col-md-6 mb-3"><div class="d-flex align-items-center gap-2"><i class="fa-solid fa-map-pin text-primary"></i><strong>Ubicación:</strong><span class="status-badge badge-ubicacion">${pedido.ubicacion.toUpperCase()}</span></div></div>
-                <div class="col-md-6 mb-3"><div class="d-flex align-items-center gap-2"><i class="fa-solid fa-calendar-days text-primary"></i><strong>Fecha:</strong><span class="text-muted">${formatearFecha(pedido.fecha_pedido)}</span></div></div>
-            </div>
-            <div class="mb-4">
-                <h6 class="fw-bold mb-3"><i class="fa-solid fa-bag-shopping text-primary me-2"></i>Items del pedido</h6>
-                <div class="list-group">${pedido.items.map(item => `<div class="list-group-item border-0 rounded-3 mb-2" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);"><div class="d-flex justify-content-between align-items-start"><div><div class="d-flex align-items-center gap-2 mb-2"><span class="badge bg-primary rounded-pill">${item.cantidad}</span><strong class="text-dark">${item.nombre}</strong></div>${item.notas_item ? `<div><small class="text-muted"><i class="fa-light fa-note-sticky me-1"></i>${item.notas_item}</small></div>` : ''}</div><span class="text-success fw-bold fs-6">S/. ${(item.cantidad * item.precio_unitario).toFixed(2)}</span></div></div>`).join('')}</div>
-            </div>
-            ${pedido.notas ? `<div class="alert alert-info rounded-3 mb-4"><h6 class="alert-heading"><i class="fa-solid fa-comment me-2"></i>Notas del pedido</h6><p class="mb-0">${pedido.notas}</p></div>` : ''}
-            
-            ${pagosDetalleHTML}
+        function formatearFecha(fecha) {
+            return new Date(fecha).toLocaleString('es-PE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
 
-            <div class="card rounded-3 mb-4" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+        function actualizarEstadisticas() {
+            const pendientes = pedidos.filter(p => p.estado === 'pendiente').length;
+            const completados = pedidos.filter(p => p.estado === 'completado').length;
+            const totalVentas = pedidos.filter(p => p.estado !== 'cancelado')
+                .reduce((sum, p) => sum + parseFloat(p.total), 0);
+
+            document.getElementById('statPendientes').textContent = pendientes;
+            document.getElementById('statCompletados').textContent = completados;
+            <?php if ($_SESSION['rol'] == 'admin'): ?>
+                document.getElementById('statVentas').textContent = `S/. ${totalVentas.toFixed(2)}`;
+                document.getElementById('statTotal').textContent = pedidos.length;
+            <?php endif; ?>
+        }
+
+        function filtrarPedidos() {
+            const estado = document.getElementById('filtroEstado').value;
+            const ubicacion = document.getElementById('filtroUbicacion').value;
+            const buscar = document.getElementById('buscarPedido').value.toLowerCase();
+
+            document.querySelectorAll('.pedido-item').forEach(item => {
+                const itemEstado = item.dataset.estado;
+                const itemUbicacion = item.dataset.ubicacion;
+                const itemId = item.dataset.id;
+                let mostrar = true;
+                if (estado && itemEstado !== estado) mostrar = false;
+                if (ubicacion === 'mesa' && !itemUbicacion.includes('mesa')) mostrar = false;
+                else if (ubicacion && ubicacion !== 'mesa' && itemUbicacion !== ubicacion) mostrar = false;
+                if (buscar && !itemId.includes(buscar)) mostrar = false;
+                item.style.display = mostrar ? 'block' : 'none';
+            });
+        }
+
+        function cambiarEstado(pedidoId, nuevoEstado) {
+            if (!confirm(`¿Cambiar estado a "${nuevoEstado}"?`)) return;
+            fetch('api.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'cambiar_estado',
+                        pedido_id: pedidoId,
+                        estado: nuevoEstado
+                    })
+                })
+                .then(response => response.json())
+                .then(result => result.success ? cargarPedidos() : alert('Error al cambiar estado'));
+        }
+
+        function eliminarPedido(pedidoId) {
+            if (!confirm('¿Estás seguro de eliminar este pedido? Esta acción no se puede deshacer.')) return;
+            fetch('api.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'eliminar_pedido',
+                        pedido_id: pedidoId
+                    })
+                })
+                .then(response => response.json())
+                .then(result => result.success ? cargarPedidos() : alert('Error al eliminar pedido'));
+        }
+
+        function verDetalles(pedidoId) {
+            const pedido = pedidos.find(p => p.id === pedidoId);
+            const content = document.getElementById('modalDetallesContent');
+
+            // --- INICIO: LÓGICA para procesar pagos ---
+            const tienePagos = pedido.pagos && pedido.pagos.length > 0;
+            const esPagoDividido = tienePagos && pedido.pagos.length > 1;
+
+            let pagosDetalleHTML = '';
+
+            if (esPagoDividido) {
+                // Agrupar los pagos por método y sumar los montos
+                const pagosAgrupados = pedido.pagos.reduce((acc, pago) => {
+                    acc[pago.metodo_pago] = (acc[pago.metodo_pago] || 0) + parseFloat(pago.monto);
+                    return acc;
+                }, {});
+
+                // Generar el HTML para el detalle del pago dividido
+                pagosDetalleHTML = `
+            <div class="card rounded-3 mb-4 border-info bg-info-subtle">
                 <div class="card-body">
-                    <h6 class="card-title fw-bold mb-3"><i class="fa-solid fa-calculator text-primary me-2"></i>Resumen de pago</h6>
-                    <div class="row">
-                        <div class="col-6 mb-2"><strong>Subtotal:</strong></div><div class="col-6 text-end mb-2"><span class="fw-semibold">S/. ${(parseFloat(pedido.total) + parseFloat(pedido.descuento)).toFixed(2)}</span></div>
-                        ${pedido.descuento > 0 ? `<div class="col-6 mb-2"><strong class="text-warning">Descuento:</strong></div><div class="col-6 text-end mb-2"><span class="text-warning fw-semibold">-S/. ${parseFloat(pedido.descuento).toFixed(2)}</span></div>` : ''}
-                        <hr class="my-2"><div class="col-6"><h5 class="mb-0 fw-bold text-dark">Total:</h5></div><div class="col-6 text-end"><h4 class="mb-0 fw-bold text-success">S/. ${parseFloat(pedido.total).toFixed(2)}</h4></div>
+                    <h6 class="card-title fw-bold mb-3 text-info"><i class="fa-solid fa-receipt me-2"></i>Detalle de Pago Dividido</h6>
+                    <ul class="list-group list-group-flush bg-transparent">
+                        ${Object.entries(pagosAgrupados).map(([metodo, monto]) => `
+                            <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 py-1 border-0">
+                                <span class="text-dark fw-medium">${metodo}:</span>
+                                <span class="fw-bold">S/. ${monto.toFixed(2)}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
+            }
+            // --- FIN: LÓGICA para procesar pagos ---
+
+            // --- INICIO: LÓGICA MEJORADA para renderizar items ---
+            const itemsHTML = pedido.items.map(item => {
+                let itemTotal = 0;
+                let precioDetalleHTML = '';
+
+                const cantTotal = parseInt(item.cantidad, 10);
+                const precioUnitario = parseFloat(item.precio_unitario);
+                const cantModificada = parseInt(item.cantidad_modificada, 10);
+                const precioModificado = parseFloat(item.precio_modificado);
+
+                const tieneOferta = precioModificado && cantModificada > 0;
+
+                if (tieneOferta) {
+                    const cantNormal = cantTotal - cantModificada;
+                    itemTotal = (cantModificada * precioModificado) + (cantNormal * precioUnitario);
+
+                    let detallePartes = [];
+
+                    // 1. Añadir la parte a precio normal, si existe
+                    if (cantNormal > 0) {
+                        detallePartes.push(`${cantNormal} x S/. ${precioUnitario.toFixed(2)}`);
+                    }
+
+                    // 2. Añadir la parte con la oferta
+                    detallePartes.push(`<span class="text-info">${cantModificada} x S/. ${precioModificado.toFixed(2)} (Oferta)</span>`);
+
+                    // 3. Unir todo en una sola línea con un '+'
+                    precioDetalleHTML = `<div class="mt-1"><small class="text-muted">${detallePartes.join(' + ')}</small></div>`;
+
+                } else {
+                    // Lógica original si no hay oferta
+                    itemTotal = cantTotal * precioUnitario;
+                    precioDetalleHTML = `
+                <div class="mt-1">
+                    <small class="text-muted">${cantTotal} x S/. ${precioUnitario.toFixed(2)}</small>
+                </div>`;
+                }
+                return `
+            <div class="list-group-item border-0 rounded-3 mb-2" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-primary rounded-pill">${item.cantidad}</span>
+                            <strong class="text-dark">${item.nombre}</strong>
+                        </div>
+                        ${precioDetalleHTML}
+                        ${item.notas_item ? `<div class="mt-2"><small class="text-muted"><i class="fa-light fa-note-sticky me-1"></i>${item.notas_item}</small></div>` : ''}
                     </div>
+                    <span class="text-success fw-bold fs-6">S/. ${itemTotal.toFixed(2)}</span>
                 </div>
             </div>`;
-        new bootstrap.Modal(document.getElementById('modalDetalles')).show();
-    }
+            }).join('');
+            // --- FIN: LÓGICA MEJORADA para renderizar items ---
 
+            content.innerHTML = `
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3"><div class="d-flex align-items-center gap-2"><i class="fa-solid fa-hashtag text-primary"></i><strong>Pedido:</strong><span class="badge bg-primary rounded-pill">#${pedido.id}</span></div></div>
+            <div class="col-md-6 mb-3"><div class="d-flex align-items-center gap-2"><i class="fa-solid fa-flag text-primary"></i><strong>Estado:</strong><span class="status-badge badge-${pedido.estado}">${pedido.estado.toUpperCase()}</span></div></div>
+            <div class="col-md-6 mb-3"><div class="d-flex align-items-center gap-2"><i class="fa-solid fa-map-pin text-primary"></i><strong>Ubicación:</strong><span class="status-badge badge-ubicacion">${pedido.ubicacion.toUpperCase()}</span></div></div>
+            <div class="col-md-6 mb-3"><div class="d-flex align-items-center gap-2"><i class="fa-solid fa-calendar-days text-primary"></i><strong>Fecha:</strong><span class="text-muted">${formatearFecha(pedido.fecha_pedido)}</span></div></div>
+        </div>
+        <div class="mb-4">
+            <h6 class="fw-bold mb-3"><i class="fa-solid fa-bag-shopping text-primary me-2"></i>Items del pedido</h6>
+            <div class="list-group">${itemsHTML}</div>
+        </div>
+        ${pedido.notas ? `<div class="alert alert-info rounded-3 mb-4"><h6 class="alert-heading"><i class="fa-solid fa-comment me-2"></i>Notas del pedido</h6><p class="mb-0">${pedido.notas}</p></div>` : ''}
+        
+        ${pagosDetalleHTML}
 
-    // --- LÓGICA DEL MODAL DE PAGO ---
-
-    function abrirModalPago(pedidoId, total) {
-        const totalAPagar = parseFloat(total);
-
-        // Resetear el modal
-        document.getElementById('pagoPedidoId').textContent = pedidoId;
-        document.getElementById('pagoTotalMonto').textContent = totalAPagar.toFixed(2);
-        document.getElementById('btnConfirmarPago').dataset.pedidoId = pedidoId;
-        document.getElementById('btnConfirmarPago').dataset.total = totalAPagar;
-
-        // Resetear switch y contenedores
-        const switchEl = document.getElementById('pagoDivididoSwitch');
-        switchEl.checked = false;
-        document.getElementById('pagoNormalContainer').style.display = 'block';
-        document.getElementById('pagoDivididoContainer').style.display = 'none';
-        document.getElementById('pagosDivididosList').innerHTML = '';
-        document.getElementById('pagoRestante').textContent = `S/. ${totalAPagar.toFixed(2)}`;
-
-        // Mostrar el modal usando la instancia global
-        if (modalPagoInstance) {
-            modalPagoInstance.show();
+        <div class="card rounded-3 mb-4" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+            <div class="card-body">
+                <h6 class="card-title fw-bold mb-3"><i class="fa-solid fa-calculator text-primary me-2"></i>Resumen de pago</h6>
+                <div class="row">
+                    <div class="col-6 mb-2"><strong>Subtotal:</strong></div><div class="col-6 text-end mb-2"><span class="fw-semibold">S/. ${(parseFloat(pedido.total) + parseFloat(pedido.descuento)).toFixed(2)}</span></div>
+                    ${pedido.descuento > 0 ? `<div class="col-6 mb-2"><strong class="text-warning">Descuento:</strong></div><div class="col-6 text-end mb-2"><span class="text-warning fw-semibold">-S/. ${parseFloat(pedido.descuento).toFixed(2)}</span></div>` : ''}
+                    <hr class="my-2"><div class="col-6"><h5 class="mb-0 fw-bold text-dark">Total:</h5></div><div class="col-6 text-end"><h4 class="mb-0 fw-bold text-success">S/. ${parseFloat(pedido.total).toFixed(2)}</h4></div>
+                </div>
+            </div>
+        </div>`;
+            new bootstrap.Modal(document.getElementById('modalDetalles')).show();
         }
-    }
 
-    function agregarCampoPago() {
-        const container = document.getElementById('pagosDivididosList');
-        const pagoId = Date.now(); // ID único para el nuevo campo de pago
 
-        const nuevoPagoHtml = `
+        // --- LÓGICA DEL MODAL DE PAGO ---
+
+        function abrirModalPago(pedidoId, total) {
+            const totalAPagar = parseFloat(total);
+
+            // Resetear el modal
+            document.getElementById('pagoPedidoId').textContent = pedidoId;
+            document.getElementById('pagoTotalMonto').textContent = totalAPagar.toFixed(2);
+            document.getElementById('btnConfirmarPago').dataset.pedidoId = pedidoId;
+            document.getElementById('btnConfirmarPago').dataset.total = totalAPagar;
+
+            // Resetear switch y contenedores
+            const switchEl = document.getElementById('pagoDivididoSwitch');
+            switchEl.checked = false;
+            document.getElementById('pagoNormalContainer').style.display = 'block';
+            document.getElementById('pagoDivididoContainer').style.display = 'none';
+            document.getElementById('pagosDivididosList').innerHTML = '';
+            document.getElementById('pagoRestante').textContent = `S/. ${totalAPagar.toFixed(2)}`;
+
+            // Mostrar el modal usando la instancia global
+            if (modalPagoInstance) {
+                modalPagoInstance.show();
+            }
+        }
+
+        function agregarCampoPago() {
+            const container = document.getElementById('pagosDivididosList');
+            const pagoId = Date.now(); // ID único para el nuevo campo de pago
+
+            const nuevoPagoHtml = `
             <div class="row g-2 align-items-center mb-2" id="pago-row-${pagoId}">
                 <div class="col">
                     <div class="input-group">
@@ -600,92 +654,92 @@ function verDetalles(pedidoId) {
                     </button>
                 </div>
             </div>`;
-        container.insertAdjacentHTML('beforeend', nuevoPagoHtml);
-        actualizarPagoRestante();
-    }
+            container.insertAdjacentHTML('beforeend', nuevoPagoHtml);
+            actualizarPagoRestante();
+        }
 
-    function actualizarPagoRestante() {
-        const totalAPagar = parseFloat(document.getElementById('btnConfirmarPago').dataset.total) || 0;
-        let totalIngresado = 0;
-        document.querySelectorAll('.monto-dividido').forEach(input => {
-            totalIngresado += parseFloat(input.value) || 0;
-        });
-        const restante = totalAPagar - totalIngresado;
-        const restanteEl = document.getElementById('pagoRestante');
-        restanteEl.textContent = `S/. ${restante.toFixed(2)}`;
-        restanteEl.classList.toggle('bg-success', restante <= 0);
-        restanteEl.classList.toggle('bg-warning', restante > 0);
-    }
+        function actualizarPagoRestante() {
+            const totalAPagar = parseFloat(document.getElementById('btnConfirmarPago').dataset.total) || 0;
+            let totalIngresado = 0;
+            document.querySelectorAll('.monto-dividido').forEach(input => {
+                totalIngresado += parseFloat(input.value) || 0;
+            });
+            const restante = totalAPagar - totalIngresado;
+            const restanteEl = document.getElementById('pagoRestante');
+            restanteEl.textContent = `S/. ${restante.toFixed(2)}`;
+            restanteEl.classList.toggle('bg-success', restante <= 0);
+            restanteEl.classList.toggle('bg-warning', restante > 0);
+        }
 
-    function registrarPago(pedidoId) {
-        const totalAPagar = parseFloat(document.getElementById('btnConfirmarPago').dataset.total);
-        const esDividido = document.getElementById('pagoDivididoSwitch').checked;
-        let pagos = [];
-        let error = null;
+        function registrarPago(pedidoId) {
+            const totalAPagar = parseFloat(document.getElementById('btnConfirmarPago').dataset.total);
+            const esDividido = document.getElementById('pagoDivididoSwitch').checked;
+            let pagos = [];
+            let error = null;
 
-        if (esDividido) {
-            const filasPago = document.querySelectorAll('#pagosDivididosList .row');
-            let sumaPagos = 0;
+            if (esDividido) {
+                const filasPago = document.querySelectorAll('#pagosDivididosList .row');
+                let sumaPagos = 0;
 
-            filasPago.forEach(fila => {
-                const monto = parseFloat(fila.querySelector('.monto-dividido').value);
-                const metodo = fila.querySelector('.metodo-dividido').value;
-                if (isNaN(monto) || monto <= 0) {
-                    error = "Todos los montos deben ser números positivos.";
-                    return;
+                filasPago.forEach(fila => {
+                    const monto = parseFloat(fila.querySelector('.monto-dividido').value);
+                    const metodo = fila.querySelector('.metodo-dividido').value;
+                    if (isNaN(monto) || monto <= 0) {
+                        error = "Todos los montos deben ser números positivos.";
+                        return;
+                    }
+                    pagos.push({
+                        metodo_pago: metodo,
+                        monto: monto
+                    });
+                    sumaPagos += monto;
+                });
+
+                if (Math.abs(sumaPagos - totalAPagar) > 0.01) { // Tolerancia para decimales
+                    error = `La suma de los pagos (S/. ${sumaPagos.toFixed(2)}) no coincide con el total a pagar (S/. ${totalAPagar.toFixed(2)}).`;
                 }
+
+            } else {
+                const metodo = document.getElementById('metodoPagoUnico').value;
                 pagos.push({
                     metodo_pago: metodo,
-                    monto: monto
+                    monto: totalAPagar
                 });
-                sumaPagos += monto;
-            });
-
-            if (Math.abs(sumaPagos - totalAPagar) > 0.01) { // Tolerancia para decimales
-                error = `La suma de los pagos (S/. ${sumaPagos.toFixed(2)}) no coincide con el total a pagar (S/. ${totalAPagar.toFixed(2)}).`;
             }
 
-        } else {
-            const metodo = document.getElementById('metodoPagoUnico').value;
-            pagos.push({
-                metodo_pago: metodo,
-                monto: totalAPagar
-            });
-        }
+            if (error) {
+                alert(error);
+                return;
+            }
 
-        if (error) {
-            alert(error);
-            return;
-        }
-
-        // Enviar a la API
-        fetch('api.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action: 'registrar_pago',
-                    pedido_id: pedidoId,
-                    pagos: pagos
+            // Enviar a la API
+            fetch('api.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'registrar_pago',
+                        pedido_id: pedidoId,
+                        pagos: pagos
+                    })
                 })
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    if (modalPagoInstance) {
-                        modalPagoInstance.hide();
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        if (modalPagoInstance) {
+                            modalPagoInstance.hide();
+                        }
+                        cargarPedidos();
+                    } else {
+                        alert('Error al registrar el pago: ' + (result.error || 'Error desconocido'));
                     }
-                    cargarPedidos();
-                } else {
-                    alert('Error al registrar el pago: ' + (result.error || 'Error desconocido'));
-                }
-            })
-            .catch(err => {
-                console.error('Error en fetch:', err);
-                alert('Hubo un problema de conexión al registrar el pago.');
-            });
-    }
+                })
+                .catch(err => {
+                    console.error('Error en fetch:', err);
+                    alert('Hubo un problema de conexión al registrar el pago.');
+                });
+        }
     </script>
 </body>
 
