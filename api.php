@@ -104,10 +104,12 @@ function buscarProductos($query) {
         $searchTerm = '%' . $query . '%';
 
         // Buscar productos
-        $stmt_productos = $pdo->prepare("SELECT id, nombre, precio, categoria AS tipo FROM productos WHERE nombre LIKE ? AND activo = TRUE LIMIT 10;");
+        
+        $stmt_productos = $pdo->prepare("SELECT id, nombre, precio, 'producto' AS tipo FROM productos WHERE nombre LIKE ? AND activo = TRUE LIMIT 10");
         $stmt_productos->execute([$searchTerm]);
         $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
 
+        // Combinar los resultados en una sola lista
         $resultados = array_merge($productos);
         
         echo json_encode($resultados);
