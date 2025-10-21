@@ -74,6 +74,11 @@ if (!isset($_SESSION['rol'])) {
                 <?php endif; ?>
                 <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'admin'): ?>
                     <li class="nav-item">
+                        <a class="nav-link" href="/admin/stock.php">Stock</a>
+                    </li>
+                <?php endif; ?>
+                <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'admin'): ?>
+                    <li class="nav-item">
                         <a class="nav-link" href="/admin/productos.php">Productos</a>
                     </li>
                 <?php endif; ?>
