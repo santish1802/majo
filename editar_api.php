@@ -34,7 +34,7 @@ switch ($action) {
 }
 
 /**
- * Obtiene los detalles completos de un pedido para su edición con la nueva estructura
+ * Obtiene los detalles completos de un pedido para su edición (solo productos)
  */
 function obtenerPedido($pedidoId) {
     global $pdo;
@@ -55,18 +55,16 @@ function obtenerPedido($pedidoId) {
             exit;
         }
 
-        // 2. Obtener los items del pedido con la nueva estructura
+        // 2. Obtener los items del pedido (solo productos)
         $sql_items = "
             SELECT 
                 pd.*,
-                COALESCE(p.nombre, c.nombre) AS nombre,
-                COALESCE(p.precio, c.precio) AS precio_base
+                p.nombre AS nombre,
+                p.precio AS precio_base
             FROM 
                 pedido_detalle pd
             LEFT JOIN 
                 productos p ON pd.producto_id = p.id
-            LEFT JOIN 
-                combos c ON pd.combo_id = c.id
             WHERE 
                 pd.pedido_id = ?
             ORDER BY pd.id
@@ -83,7 +81,7 @@ function obtenerPedido($pedidoId) {
 }
 
 /**
- * Busca productos y combos activos en la base de datos
+ * Busca productos activos en la base de datos
  */
 function buscarProductos($query) {
     global $pdo;
@@ -94,10 +92,8 @@ function buscarProductos($query) {
     }
     
     try {
-        $resultados = [];
         $searchTerm = '%' . $query . '%';
 
-        // Buscar productos activos
         $stmt_productos = $pdo->prepare("
             SELECT id, nombre, precio, 'producto' AS tipo 
             FROM productos 
@@ -108,28 +104,14 @@ function buscarProductos($query) {
         $stmt_productos->execute([$searchTerm]);
         $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
 
-        // Buscar combos activos
-        $stmt_combos = $pdo->prepare("
-            SELECT id, nombre, precio, 'combo' AS tipo 
-            FROM combos 
-            WHERE nombre LIKE ? AND activo = TRUE 
-            ORDER BY nombre 
-            LIMIT 10
-        ");
-        $stmt_combos->execute([$searchTerm]);
-        $combos = $stmt_combos->fetchAll(PDO::FETCH_ASSOC);
-
-        // Combinar resultados
-        $resultados = array_merge($productos, $combos);
-        
-        echo json_encode($resultados);
+        echo json_encode($productos);
     } catch (PDOException $e) {
         echo json_encode(['error' => 'Error de base de datos: ' . $e->getMessage()]);
     }
 }
 
 /**
- * Actualiza un pedido existente con la nueva estructura que incluye modificaciones de precio
+ * Actualiza un pedido existente (solo productos)
  */
 function actualizarPedido($pedido) {
     global $pdo;
@@ -140,6 +122,24 @@ function actualizarPedido($pedido) {
     }
 
     try {
+        // Verificar el estado del pedido (fuera de la transacción)
+        $stmt_estado = $pdo->prepare("SELECT estado FROM pedidos WHERE id = ?");
+        $stmt_estado->execute([$pedido['pedido_id']]);
+        $pedidoInfo = $stmt_estado->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$pedidoInfo) {
+            throw new Exception('Pedido no encontrado.');
+        }
+        
+        $estadoPedido = $pedidoInfo['estado'];
+        
+        // Si el pedido está COMPLETADO, primero reponemos el stock antiguo (fuera de la transacción)
+        if ($estadoPedido === 'completado') {
+            $stmt_reponer = $pdo->prepare("CALL reponer_stock_pedido(?)");
+            $stmt_reponer->execute([$pedido['pedido_id']]);
+        }
+
+        // === Iniciar la transacción principal ===
         $pdo->beginTransaction();
 
         // 1. Actualizar información general del pedido
@@ -161,28 +161,19 @@ function actualizarPedido($pedido) {
         $stmt_delete = $pdo->prepare("DELETE FROM pedido_detalle WHERE pedido_id = ?");
         $stmt_delete->execute([$pedido['pedido_id']]);
 
-        // 3. Insertar los nuevos items con la estructura actualizada
+        // 3. Insertar los nuevos items
         $sql_item = "
             INSERT INTO pedido_detalle 
-            (pedido_id, producto_id, combo_id, cantidad, precio_unitario, precio_modificado, 
+            (pedido_id, producto_id, cantidad, precio_unitario, precio_modificado, 
              cantidad_modificada, modificacion_tipo, modificacion_valor, notas_item) 
             VALUES 
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ";
         $stmt_item = $pdo->prepare($sql_item);
 
         foreach ($pedido['items'] as $item) {
-            // Determinar IDs según el tipo
-            $productoId = null;
-            $comboId = null;
-            
-            if ($item['tipo'] === 'producto') {
-                $productoId = $item['id'];
-            } elseif ($item['tipo'] === 'combo') {
-                $comboId = $item['id'];
-            }
+            $productoId = $item['id'];
 
-            // Calcular valores para las nuevas columnas
             $precioModificado = null;
             $cantidadModificada = 0;
             $modificacionTipo = null;
@@ -193,12 +184,7 @@ function actualizarPedido($pedido) {
                 $cantidadModificada = $item['cantidadModificada'] ?? $item['cantidad'];
                 $modificacionTipo = $item['modificacion']['tipo'] ?? null;
                 
-                // Determinar el valor de modificación basado en el tipo
-                if ($modificacionTipo === 'soles') {
-                    $modificacionValor = $item['modificacion']['esDescuento'] ? 
-                        -abs($item['modificacion']['valor']) : 
-                        abs($item['modificacion']['valor']);
-                } elseif ($modificacionTipo === 'porcentaje') {
+                if ($modificacionTipo === 'soles' || $modificacionTipo === 'porcentaje') {
                     $modificacionValor = $item['modificacion']['esDescuento'] ? 
                         -abs($item['modificacion']['valor']) : 
                         abs($item['modificacion']['valor']);
@@ -210,7 +196,6 @@ function actualizarPedido($pedido) {
             $stmt_item->execute([
                 $pedido['pedido_id'],
                 $productoId,
-                $comboId,
                 $item['cantidad'],
                 $item['precioOriginal'],
                 $precioModificado,
@@ -221,13 +206,22 @@ function actualizarPedido($pedido) {
             ]);
         }
 
-        // Si todo fue exitoso, confirmar la transacción
+        // Confirmar la transacción
         $pdo->commit();
-        echo json_encode(['success' => true]);
+
+        // Si el pedido estaba COMPLETADO, descontamos el nuevo stock (fuera de la transacción)
+        if ($estadoPedido === 'completado') {
+            $stmt_descontar = $pdo->prepare("CALL descontar_stock_pedido(?)");
+            $stmt_descontar->execute([$pedido['pedido_id']]);
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Pedido actualizado correctamente']);
 
     } catch (Exception $e) {
-        // Si algo falló, revertir la transacción
-        $pdo->rollBack();
+        // Si algo falla dentro del bloque principal, revertimos los cambios
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         echo json_encode(['error' => 'Error al actualizar el pedido: ' . $e->getMessage()]);
     }
 }

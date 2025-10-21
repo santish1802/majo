@@ -21,9 +21,6 @@ switch ($action) {
     case 'crear_pedido':
         crearPedido($input['pedido']);
         break;
-    case 'obtener_combo':
-        obtenerCombo($input['combo_id']);
-        break;
     case 'obtener_pedidos':
         obtenerPedidos($input['fecha'] ?? date('Y-m-d'));
         break;
@@ -82,9 +79,10 @@ function registrarPago($input) {
         // 3. Actualizar el estado del pedido principal a 'completado'
         $stmt = $pdo->prepare("UPDATE pedidos SET estado = 'completado' WHERE id = ?");
         $stmt->execute([$pedidoId]);
-        
-        // Si todo fue bien, confirmar los cambios
         $pdo->commit();
+                $stmt = $pdo->prepare("CALL descontar_stock_pedido(?)");
+        $stmt->execute([$pedidoId]);
+        // Si todo fue bien, confirmar los cambios
         echo json_encode(['success' => true]);
 
     } catch (Exception $e) {
@@ -106,17 +104,11 @@ function buscarProductos($query) {
         $searchTerm = '%' . $query . '%';
 
         // Buscar productos
-        $stmt_productos = $pdo->prepare("SELECT id, nombre, precio, 'producto' AS tipo FROM productos WHERE nombre LIKE ? AND activo = TRUE LIMIT 10");
+        $stmt_productos = $pdo->prepare("SELECT id, nombre, precio, categoria AS tipo FROM productos WHERE nombre LIKE ? AND activo = TRUE LIMIT 10;");
         $stmt_productos->execute([$searchTerm]);
         $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
 
-        // Buscar combos
-        $stmt_combos = $pdo->prepare("SELECT id, nombre, precio, 'combo' AS tipo FROM combos WHERE nombre LIKE ? AND activo = TRUE LIMIT 10");
-        $stmt_combos->execute([$searchTerm]);
-        $combos = $stmt_combos->fetchAll(PDO::FETCH_ASSOC);
-
-        // Combinar los resultados en una sola lista
-        $resultados = array_merge($productos, $combos);
+        $resultados = array_merge($productos);
         
         echo json_encode($resultados);
     } catch (PDOException $e) {
@@ -162,32 +154,35 @@ function crearPedido($pedido) {
 
         // Insertar detalles del pedido
         foreach ($pedido['items'] as $item) {
-            $productoId = null;
-            $comboId = null;
-            
-            // Asignar el ID al campo correcto según el tipo
-            if ($item['tipo'] === 'producto') {
-                $productoId = $item['id'];
-            } elseif ($item['tipo'] === 'combo') {
-                $comboId = $item['id'];
+            // Ignorar items que no sean productos (se quita soporte para combos)
+            if (($item['tipo'] ?? 'producto') !== 'producto') {
+            continue;
             }
 
+            $productoId = $item['id'];
+            $cantidad = $item['cantidad'];
+            $precio_unitario = $item['precioOriginal'] ?? $item['precio'];
+            $precio_modificado = (isset($item['modificado']) && $item['modificado']) ? $item['precio'] : null;
+            $cantidad_modificada = $item['cantidadModificada'] ?? 0;
+            $modificacion_tipo = $item['modificacion']['tipo'] ?? null;
+            $modificacion_valor = $item['modificacion']['valor'] ?? 0;
+            $notas_item = $item['notas'] ?? null;
+
             $stmt = $pdo->prepare("INSERT INTO pedido_detalle 
-                (pedido_id, producto_id, combo_id, cantidad, precio_unitario, 
-                 precio_modificado, cantidad_modificada, modificacion_tipo, modificacion_valor, notas_item) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            (pedido_id, producto_id, cantidad, precio_unitario, 
+             precio_modificado, cantidad_modificada, modificacion_tipo, modificacion_valor, notas_item) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             $stmt->execute([
-                $pedidoId,
-                $productoId,
-                $comboId,
-                $item['cantidad'],
-                $item['precioOriginal'] ?? $item['precio'],
-                isset($item['modificado']) && $item['modificado'] ? $item['precio'] : null,
-                $item['cantidadModificada'] ?? 0,
-                $item['modificacion']['tipo'] ?? null,
-                $item['modificacion']['valor'] ?? 0,
-                $item['notas'] ?? null
+            $pedidoId,
+            $productoId,
+            $cantidad,
+            $precio_unitario,
+            $precio_modificado,
+            $cantidad_modificada,
+            $modificacion_tipo,
+            $modificacion_valor,
+            $notas_item
             ]);
         }
 
@@ -198,16 +193,6 @@ function crearPedido($pedido) {
         $pdo->rollBack();
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
-}
-
-function obtenerCombo($comboId) {
-    global $pdo;
-    
-    $stmt = $pdo->prepare("SELECT * FROM combos WHERE id = ? AND activo = 1");
-    $stmt->execute([$comboId]);
-    $combo = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    echo json_encode($combo);
 }
 
 // =================== NUEVAS FUNCIONES PARA GESTIÓN DE PEDIDOS ===================
@@ -229,38 +214,34 @@ function obtenerPedidos($fecha) {
         // Para cada pedido, obtener sus items
         foreach ($pedidos as &$pedido) {
             $stmt = $pdo->prepare("
-                SELECT 
-                    pd.*,
-                    p.nombre as nombre,
-                    p.precio as precio_unitario,
-                    c.nombre as combo_nombre,
-                    c.precio as combo_precio
-                FROM pedido_detalle pd
-                LEFT JOIN productos p ON pd.producto_id = p.id
-                LEFT JOIN combos c ON pd.combo_id = c.id
-                WHERE pd.pedido_id = ?
-                ORDER BY pd.id
+            SELECT 
+                pd.*,
+                p.nombre as nombre,
+                p.precio as precio_unitario
+            FROM pedido_detalle pd
+            LEFT JOIN productos p ON pd.producto_id = p.id
+            WHERE pd.pedido_id = ?
+            ORDER BY pd.id
             ");
             $stmt->execute([$pedido['id']]);
             $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Formatear items
             $pedido['items'] = array_map(function($item) {
-                return [
-                    'id' => $item['id'],
-                    'nombre' => $item['combo_id'] ? $item['combo_nombre'] : $item['nombre'],
-                    'cantidad' => $item['cantidad'],
-                    'cantidad_modificada' => $item['cantidad_modificada'] ?? 0,
-                    'precio_unitario' => $item['combo_id'] ? $item['combo_precio'] : $item['precio_unitario'],
-                    'precio_modificado' => $item['precio_modificado'],
-                    'modificacion_tipo' => $item['modificacion_tipo'],
-                    'modificacion_valor' => $item['modificacion_valor'],
-                    'es_descuento' => ($item['modificacion_valor'] < 0), // Se calcula dinámicamente
-                    'notas_item' => $item['notas_item'],
-                    'es_combo' => $item['combo_id'] ? true : false
-                ];
+            return [
+                'id' => $item['id'],
+                'nombre' => $item['nombre'],
+                'cantidad' => $item['cantidad'],
+                'cantidad_modificada' => $item['cantidad_modificada'] ?? 0,
+                'precio_unitario' => $item['precio_unitario'],
+                'precio_modificado' => $item['precio_modificado'],
+                'modificacion_tipo' => $item['modificacion_tipo'],
+                'modificacion_valor' => $item['modificacion_valor'],
+                'es_descuento' => isset($item['modificacion_valor']) ? ($item['modificacion_valor'] < 0) : false,
+                'notas_item' => $item['notas_item']
+            ];
             }, $items);
-                        $stmt_pagos = $pdo->prepare("SELECT metodo_pago, monto FROM pedido_pagos WHERE pedido_id = ?");
+
+            $stmt_pagos = $pdo->prepare("SELECT metodo_pago, monto FROM pedido_pagos WHERE pedido_id = ?");
             $stmt_pagos->execute([$pedido['id']]);
             $pedido['pagos'] = $stmt_pagos->fetchAll(PDO::FETCH_ASSOC);
         }
@@ -289,14 +270,11 @@ function obtenerPedido($pedidoId) {
         // Obtener items del pedido
         $stmt = $pdo->prepare("
             SELECT 
-                pd.*,
-                p.nombre as nombre,
-                p.precio as precio_unitario,
-                c.nombre as combo_nombre,
-                c.precio as combo_precio
+            pd.*,
+            p.nombre as nombre,
+            p.precio as precio_unitario
             FROM pedido_detalle pd
             LEFT JOIN productos p ON pd.producto_id = p.id
-            LEFT JOIN combos c ON pd.combo_id = c.id
             WHERE pd.pedido_id = ?
             ORDER BY pd.id
         ");
@@ -306,17 +284,16 @@ function obtenerPedido($pedidoId) {
         // Formatear items
         $pedido['items'] = array_map(function($item) {
             return [
-                'id' => $item['id'],
-                'nombre' => $item['combo_id'] ? $item['combo_nombre'] : $item['nombre'],
-                'cantidad' => $item['cantidad'],
-                'cantidad_modificada' => $item['cantidad_modificada'] ?? 0,
-                'precio_unitario' => $item['combo_id'] ? $item['combo_precio'] : $item['precio_unitario'],
-                'precio_modificado' => $item['precio_modificado'],
-                'modificacion_tipo' => $item['modificacion_tipo'],
-                'modificacion_valor' => $item['modificacion_valor'],
-                'es_descuento' => ($item['modificacion_valor'] < 0), // Se calcula dinámicamente
-                'notas_item' => $item['notas_item'],
-                'es_combo' => $item['combo_id'] ? true : false
+            'id' => $item['id'],
+            'nombre' => $item['nombre'],
+            'cantidad' => $item['cantidad'],
+            'cantidad_modificada' => $item['cantidad_modificada'] ?? 0,
+            'precio_unitario' => $item['precio_unitario'],
+            'precio_modificado' => $item['precio_modificado'],
+            'modificacion_tipo' => $item['modificacion_tipo'],
+            'modificacion_valor' => $item['modificacion_valor'],
+            'es_descuento' => ($item['modificacion_valor'] < 0), // Se calcula dinámicamente
+            'notas_item' => $item['notas_item']
             ];
         }, $items);
         
@@ -336,15 +313,28 @@ function cambiarEstadoPedido($pedidoId, $estado) {
         if (!in_array($estado, $estados_validos)) {
             throw new Exception('Estado no válido');
         }
+
+        // Obtener estado actual
+        $stmt = $pdo->prepare("SELECT estado FROM pedidos WHERE id = ?");
+        $stmt->execute([$pedidoId]);
+        $estadoActual = $stmt->fetchColumn();
         
+        if (!$estadoActual) {
+            echo json_encode(['success' => false, 'error' => 'Pedido no encontrado']);
+            return;
+        }
+
+        // Actualizar estado
         $stmt = $pdo->prepare("UPDATE pedidos SET estado = ? WHERE id = ?");
         $stmt->execute([$estado, $pedidoId]);
-        
-        if ($stmt->rowCount() > 0) {
-            echo json_encode(['success' => true]);
-        } else {
-            echo json_encode(['success' => false, 'error' => 'Pedido no encontrado']);
+
+        // Si cambia a pendiente y no estaba en pendiente, reponer stock
+        if ($estado === 'pendiente' && $estadoActual !== 'pendiente') {
+            $stmt = $pdo->prepare("CALL reponer_stock_pedido(?)");
+            $stmt->execute([$pedidoId]);
         }
+        
+        echo json_encode(['success' => true]);
         
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);

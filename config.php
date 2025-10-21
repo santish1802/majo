@@ -10,7 +10,7 @@ if ($_SERVER['HTTP_HOST'] === 'majo.kesug.com') {
 } else {
     // Localhost
     $host     = 'localhost';
-    $db       = 'majo';
+    $db       = 'majocafe_system';
     $user     = 'root';
     $pass     = '';
 }
