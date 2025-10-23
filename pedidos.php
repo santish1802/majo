@@ -1,3 +1,4 @@
+<?php require $_SERVER['DOCUMENT_ROOT'] . '/auth.php'; ?>
 <?php require_once 'config.php'; ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -486,7 +487,11 @@
         }
 
         function verDetalles(pedidoId) {
-            const pedido = pedidos.find(p => p.id === pedidoId);
+            const pedido = pedidos.find(p => p.id == pedidoId); // usar == por si es string vs número
+            if (!pedido) {
+                console.error('Pedido no encontrado', pedidoId);
+                return;
+            }
             const content = document.getElementById('modalDetallesContent');
 
             // --- INICIO: LÓGICA para procesar pagos ---
@@ -504,20 +509,20 @@
 
                 // Generar el HTML para el detalle del pago dividido
                 pagosDetalleHTML = `
-            <div class="card rounded-3 mb-4 border-info bg-info-subtle">
-                <div class="card-body">
-                    <h6 class="card-title fw-bold mb-3 text-info"><i class="fa-solid fa-receipt me-2"></i>Detalle de Pago Dividido</h6>
-                    <ul class="list-group list-group-flush bg-transparent">
-                        ${Object.entries(pagosAgrupados).map(([metodo, monto]) => `
-                            <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 py-1 border-0">
-                                <span class="text-dark fw-medium">${metodo}:</span>
-                                <span class="fw-bold">S/. ${monto.toFixed(2)}</span>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-            </div>
-        `;
+                    <div class="card rounded-3 mb-4 border-info bg-info-subtle">
+                        <div class="card-body">
+                            <h6 class="card-title fw-bold mb-3 text-info"><i class="fa-solid fa-receipt me-2"></i>Detalle de Pago Dividido</h6>
+                            <ul class="list-group list-group-flush bg-transparent">
+                                ${Object.entries(pagosAgrupados).map(([metodo, monto]) => `
+                                    <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 py-1 border-0">
+                                        <span class="text-dark fw-medium">${metodo}:</span>
+                                        <span class="fw-bold">S/. ${monto.toFixed(2)}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
             }
             // --- FIN: LÓGICA para procesar pagos ---
 

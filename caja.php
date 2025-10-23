@@ -1,5 +1,5 @@
+<?php require $_SERVER['DOCUMENT_ROOT'] . '/auth.php'; ?>
 <?php
-session_start();
 require $_SERVER['DOCUMENT_ROOT'] . "/config.php";
 
 // --- FUNCIONES DE SEGURIDAD ---

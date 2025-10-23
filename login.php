@@ -1,5 +1,4 @@
-<?php
-session_start();
+<?php session_start();
 require 'config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -25,21 +24,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión</title>
-    <?php 
+    <?php
     include $_SERVER['DOCUMENT_ROOT'] . "/assets/img/favicon.php";
-    ?>   
+    ?>
     <link href="/assets/scss/bootstrap.css" rel="stylesheet">
     <link href="/assets/style.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
 
 </head>
+
 <body>
-        <?php include $_SERVER['DOCUMENT_ROOT'] . "/nav.php"; ?>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . "/nav.php"; ?>
 
     <div class="container mt-5">
         <div class="row justify-content-center">
@@ -70,4 +71,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

@@ -1,3 +1,6 @@
+<?php 
+require 'auth.php'; // PRIMERO la autenticación
+?>
 <?php require_once 'config.php';
 ?>
 <!DOCTYPE html>

@@ -1,3 +1,4 @@
+<?php require $_SERVER['DOCUMENT_ROOT'] . '/auth.php'; ?>
 <?php
 require $_SERVER['DOCUMENT_ROOT'] . "/config.php";
 

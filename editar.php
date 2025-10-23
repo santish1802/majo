@@ -1,3 +1,4 @@
+<?php require $_SERVER['DOCUMENT_ROOT'] . '/auth.php'; ?>
 <?php require_once 'config.php';
 
 // Obtener ID del pedido desde GET

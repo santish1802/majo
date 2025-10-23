@@ -1,3 +1,4 @@
+<?php require $_SERVER['DOCUMENT_ROOT'] . '/auth.php'; ?>
 <?php
 // 1. INCLUIR LA CONFIGURACIÓN DE LA BASE DE DATOS
 // Este archivo debe contener tu conexión $pdo.

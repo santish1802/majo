@@ -1,5 +1,5 @@
+<?php require $_SERVER['DOCUMENT_ROOT'] . '/auth.php'; ?>
 <?php
-session_start();
 require 'config.php';
 
 // 1. VERIFICAR SI EL USUARIO HA INICIADO SESIÓN
