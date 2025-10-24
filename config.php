@@ -2,15 +2,14 @@
 date_default_timezone_set('America/Lima'); // Establece la zona horaria a Lima, Perú
 
 
-$host     = '127.0.0.1';
-$port     = '3308';
-$db       = 'fdrcsdqs_majocafe_system';
-$user     = 'fdrcsdqs_santiago';
-$pass     = 'P75609967p';
+    $host     = 'localhost';
+    $db       = 'majocafe_system';
+    $user     = 'root';
+    $pass     = '';
 
 
 $charset = 'utf8mb4';
-$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
+$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
 
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
