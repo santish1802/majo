@@ -1,0 +1,19 @@
+{
+    "name": "mi_usuario/mi_proyecto_firebase",
+    "autoload": {
+        "psr-4": {
+            "MiProyecto\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Tu Nombre",
+            "email": "tu_email@example.com"
+        }
+    ],
+    "require": {
+        "kreait/firebase-php": "^7.0",
+        "guzzlehttp/guzzle": "^7.0",
+        "google/auth": "^1.48"
+    }
+}
