@@ -736,10 +736,26 @@
                             modalPagoInstance.hide();
                         }
                         cargarPedidos();
+
+                        // ----------------------------
+                        // Llamada interna para stock crítico y notificación
+                        // ----------------------------
+                        fetch('/config/stocknoti.php', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    pedido_id: pedidoId
+                                })
+                            })
+                            .catch(err => console.error('Error enviando stock crítico:', err));
+
                     } else {
                         alert('Error al registrar el pago: ' + (result.error || 'Error desconocido'));
                     }
                 })
+
                 .catch(err => {
                     console.error('Error en fetch:', err);
                     alert('Hubo un problema de conexión al registrar el pago.');

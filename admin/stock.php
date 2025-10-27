@@ -82,7 +82,6 @@
                     <table id="tablaIngredientes" class="table table-striped table-hover display responsive nowrap" style="width:100%">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th class="all">Nombre</th>
                                 <th>Stock Actual</th>
                                 <th>Stock Mínimo</th>
@@ -102,11 +101,11 @@
                     <table id="tablaProductos" class="table table-striped table-hover display responsive nowrap" style="width:100%">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th class="all">Nombre</th>
                                 <th>Stock Actual</th>
                                 <th>Stock Mínimo</th>
                                 <th class="all">Estado</th>
+                                <th class="none">Categoria</th>
                                 <th class="none">Acciones</th>
                             </tr>
                         </thead>
@@ -121,9 +120,9 @@
                     <table id="tablaFrutas" class="table table-striped table-hover display responsive nowrap" style="width:100%">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th class="all">Nombre</th>
                                 <th>Stock Actual</th>
+                                <th>Stock Mínimo</th> <!-- AGREGADO: Columna de Stock Mínimo para Frutas -->
                                 <th class="all">Estado</th>
                                 <th class="none">Acciones</th>
                             </tr>
@@ -210,12 +209,13 @@
             // Tabla Ingredientes
             tablaIngredientes = $('#tablaIngredientes').DataTable({
                 responsive: true,
+                pageLength: 25,
                 ajax: {
                     url: 'api_control_stock.php?action=listar_ingredientes_stock',
                     dataSrc: 'data'
                 },
                 columns: [
-                    { data: 'id' },
+                    // Columna ID eliminada
                     { data: 'nombre' },
                     {
                         data: 'stock_actual',
@@ -235,6 +235,7 @@
                         render: function(data) {
                             const stock = parseFloat(data.stock_actual);
                             const minimo = parseFloat(data.stock_minimo);
+                            // Lógica de estado igual para todos
                             if (stock <= minimo) return '<span class="badge stock-bajo">Bajo</span>';
                             if (stock <= minimo * 2) return '<span class="badge stock-medio">Medio</span>';
                             return '<span class="badge stock-alto">Alto</span>';
@@ -252,18 +253,18 @@
                 language: {
                     url: "/assets/es_es.json"
                 },
-                order: [[1, 'asc']]
+                order: [[0, 'asc']] // Ordena por Nombre (ahora columna 0)
             });
 
             // Tabla Productos
-            tablaProductos = $('#tablaProductos').DataTable({
+tablaProductos = $('#tablaProductos').DataTable({
                 responsive: true,
+                pageLength: 25, 
                 ajax: {
                     url: 'api_control_stock.php?action=listar_productos_stock',
                     dataSrc: 'data'
                 },
                 columns: [
-                    { data: 'id' },
                     { data: 'nombre' },
                     { data: 'stock_actual' },
                     { data: 'stock_minimo' },
@@ -277,6 +278,7 @@
                             return '<span class="badge stock-alto">Alto</span>';
                         }
                     },
+                    { data: 'categoria', },
                     {
                         data: null,
                         render: function(data) {
@@ -289,21 +291,31 @@
                 language: {
                     url: "/assets/es_es.json"
                 },
-                order: [[1, 'asc']]
+                order: [
+                    [4, 'desc'], // Ordena primero por la columna oculta 'categoria' (índice 1)
+                ]
             });
 
             // Tabla Frutas
             tablaFrutas = $('#tablaFrutas').DataTable({
                 responsive: true,
+                pageLength: 25,
                 ajax: {
                     url: 'api_control_stock.php?action=listar_frutas_stock',
                     dataSrc: 'data'
                 },
                 columns: [
-                    { data: 'id' },
+                    // Columna ID eliminada
                     { data: 'nombre' },
                     {
                         data: 'stock_actual',
+                        render: function(data) {
+                            return parseFloat(data).toFixed(2);
+                        }
+                    },
+                    // AGREGADO: Columna de stock_minimo
+                    {
+                        data: 'stock_minimo',
                         render: function(data) {
                             return parseFloat(data).toFixed(2);
                         }
@@ -312,15 +324,19 @@
                         data: null,
                         render: function(data) {
                             const stock = parseFloat(data.stock_actual);
-                            if (stock <= 5) return '<span class="badge stock-bajo">Bajo</span>';
-                            if (stock <= 20) return '<span class="badge stock-medio">Medio</span>';
+                            const minimo = parseFloat(data.stock_minimo); // AHORA USA stock_minimo
+                            
+                            // Lógica de estado consistente con las otras tablas
+                            if (stock <= minimo) return '<span class="badge stock-bajo">Bajo</span>';
+                            if (stock <= minimo * 2) return '<span class="badge stock-medio">Medio</span>';
                             return '<span class="badge stock-alto">Alto</span>';
                         }
                     },
                     {
                         data: null,
                         render: function(data) {
-                            return `<button class="btn btn-sm btn-primary" onclick='editarItem(${data.id}, "fruta", "${data.nombre.replace(/'/g, "\\'")}",${data.stock_actual}, 0, "fruta")'>
+                            // CORREGIDO: Se pasa data.stock_minimo en lugar de 0
+                            return `<button class="btn btn-sm btn-primary" onclick='editarItem(${data.id}, "fruta", "${data.nombre.replace(/'/g, "\\'")}",${data.stock_actual}, ${data.stock_minimo}, "fruta")'>
                                 <i class="fas fa-edit"></i> Editar
                             </button>`;
                         }
@@ -329,10 +345,10 @@
                 language: {
                     url: "/assets/es_es.json"
                 },
-                order: [[1, 'asc']]
+                order: [[0, 'asc']] // Ordena por Nombre (ahora columna 0)
             });
 
-            // Manejar clicks en controles responsive para cerrar otros
+            // Manejar clicks en controles responsive para cerrar otros (el ID ya no se usa aquí)
             $('#tablaIngredientes, #tablaProductos, #tablaFrutas').on('click', 'tr td.dtr-control', function() {
                 var table = $(this).closest('table').DataTable();
                 var tr = $(this).closest('tr');
@@ -359,7 +375,7 @@
             $('#editStockMinimo').val(stockMinimo);
             $('#editUnidad').val(unidad);
 
-            // Mostrar siempre stock mínimo (tanto para productos como ingredientes)
+            // Mostrar siempre stock mínimo (tanto para productos como ingredientes/frutas)
             $('#seccionStockMinimo').show();
 
             new bootstrap.Modal(document.getElementById('modalEditarStock')).show();
@@ -380,6 +396,7 @@
             const stockMinimo = $('#editStockMinimo').val();
 
             const data = {
+                action: 'actualizar_stock', // Añadir acción para consistencia, aunque se pasa por URL
                 id: id,
                 tipo: tipo,
                 stock_actual: stockActual,
@@ -396,10 +413,18 @@
                         bootstrap.Modal.getInstance(document.getElementById('modalEditarStock')).hide();
 
                         // Recargar la tabla correspondiente
-                        if (tipo === 'ingrediente') tablaIngredientes.ajax.reload();
-                        else if (tipo === 'producto') tablaProductos.ajax.reload();
-                        else if (tipo === 'fruta') tablaFrutas.ajax.reload();
+                        if (tipo === 'ingrediente') tablaIngredientes.ajax.reload(null, false); // false para mantener la posición de la paginación
+                        else if (tipo === 'producto') tablaProductos.ajax.reload(null, false);
+                        else if (tipo === 'fruta') tablaFrutas.ajax.reload(null, false);
+                    } else {
+                        // Aquí deberías mostrar un mensaje de error al usuario, ya que json_error() no usa alert
+                        console.error("Error al actualizar stock:", result.error);
+                        alert("Error al actualizar el stock: " + result.error);
                     }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error de AJAX:", status, error);
+                    alert("Ocurrió un error de conexión al guardar el stock.");
                 }
             });
         }

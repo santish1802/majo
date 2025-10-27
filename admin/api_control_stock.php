@@ -39,7 +39,7 @@ try {
 
         // LISTAR PRODUCTOS CON STOCK POR UNIDAD
         case "listar_productos_stock":
-            $sql = "SELECT p.id, p.nombre, 
+            $sql = "SELECT p.id, p.nombre, p.categoria, 
                     COALESCE(psu.stock_actual, 0) as stock_actual,
                     COALESCE(psu.stock_minimo, 0) as stock_minimo
                     FROM productos p

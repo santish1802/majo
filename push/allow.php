@@ -48,7 +48,7 @@
             appId: "1:335384882055:web:12a545b31ea22c91f60122",
             measurementId: "G-T1PEZLGN7N"
         };
-        const VAPID_KEY = 'BIahtRqHD6ZgpS3-ErAQzKrzM2CspHmv_--NskdHZV3nRFqyk-gFhPfne_43q60tvYmpQX6W8JRg3QCm_Q4_hik';
+        const VAPID_KEY = 'BANRq3owV2f4D_1iri6qQVdVn5igZ_5m2RcqH9kmH0S_67gIzUL3nasWI5cedjJPEIMIlm2egz_Cs-7lqGYXrIo';
 
         const app = initializeApp(firebaseConfig);
         const messaging = getMessaging(app);

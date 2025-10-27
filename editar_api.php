@@ -1,6 +1,7 @@
 <?php
 // Incluir la configuración de la base de datos
 require_once 'config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . "/config/funStock.php";
 
 // Establecer la cabecera para devolver contenido JSON
 header('Content-Type: application/json');
@@ -115,14 +116,14 @@ function buscarProductos($query) {
  */
 function actualizarPedido($pedido) {
     global $pdo;
-    
+
     if (empty($pedido) || empty($pedido['pedido_id'])) {
         echo json_encode(['error' => 'Datos del pedido incompletos.']);
         exit;
     }
 
     try {
-        // Verificar el estado del pedido (fuera de la transacción)
+        // 1️⃣ Verificar el estado actual del pedido (fuera de la transacción)
         $stmt_estado = $pdo->prepare("SELECT estado FROM pedidos WHERE id = ?");
         $stmt_estado->execute([$pedido['pedido_id']]);
         $pedidoInfo = $stmt_estado->fetch(PDO::FETCH_ASSOC);
@@ -130,19 +131,18 @@ function actualizarPedido($pedido) {
         if (!$pedidoInfo) {
             throw new Exception('Pedido no encontrado.');
         }
-        
+
         $estadoPedido = $pedidoInfo['estado'];
-        
-        // Si el pedido está COMPLETADO, primero reponemos el stock antiguo (fuera de la transacción)
+
+        // 2️⃣ Si el pedido está COMPLETADO, reponer stock antes de modificar
         if ($estadoPedido === 'completado') {
-            $stmt_reponer = $pdo->prepare("CALL reponer_stock_pedido(?)");
-            $stmt_reponer->execute([$pedido['pedido_id']]);
+            reponerStockPedido($pdo, (int)$pedido['pedido_id']);
         }
 
-        // === Iniciar la transacción principal ===
+        // === 3️⃣ Iniciar transacción principal ===
         $pdo->beginTransaction();
 
-        // 1. Actualizar información general del pedido
+        // 4️⃣ Actualizar información general del pedido
         $sql_pedido = "
             UPDATE pedidos 
             SET ubicacion = ?, notas = ?, descuento = ?, total = ? 
@@ -157,11 +157,11 @@ function actualizarPedido($pedido) {
             $pedido['pedido_id']
         ]);
 
-        // 2. Eliminar todos los items antiguos del pedido
+        // 5️⃣ Eliminar todos los items antiguos del pedido
         $stmt_delete = $pdo->prepare("DELETE FROM pedido_detalle WHERE pedido_id = ?");
         $stmt_delete->execute([$pedido['pedido_id']]);
 
-        // 3. Insertar los nuevos items
+        // 6️⃣ Insertar los nuevos items del pedido
         $sql_item = "
             INSERT INTO pedido_detalle 
             (pedido_id, producto_id, cantidad, precio_unitario, precio_modificado, 
@@ -183,11 +183,11 @@ function actualizarPedido($pedido) {
                 $precioModificado = $item['precio'];
                 $cantidadModificada = $item['cantidadModificada'] ?? $item['cantidad'];
                 $modificacionTipo = $item['modificacion']['tipo'] ?? null;
-                
+
                 if ($modificacionTipo === 'soles' || $modificacionTipo === 'porcentaje') {
-                    $modificacionValor = $item['modificacion']['esDescuento'] ? 
-                        -abs($item['modificacion']['valor']) : 
-                        abs($item['modificacion']['valor']);
+                    $modificacionValor = $item['modificacion']['esDescuento']
+                        ? -abs($item['modificacion']['valor'])
+                        : abs($item['modificacion']['valor']);
                 } elseif ($modificacionTipo === 'fijo') {
                     $modificacionValor = $item['modificacion']['valor'];
                 }
@@ -206,24 +206,24 @@ function actualizarPedido($pedido) {
             ]);
         }
 
-        // Confirmar la transacción
+        // 7️⃣ Confirmar transacción de actualización de pedido
         $pdo->commit();
 
-        // Si el pedido estaba COMPLETADO, descontamos el nuevo stock (fuera de la transacción)
+        // 8️⃣ Si el pedido estaba COMPLETADO, descontar stock actualizado
         if ($estadoPedido === 'completado') {
-            $stmt_descontar = $pdo->prepare("CALL descontar_stock_pedido(?)");
-            $stmt_descontar->execute([$pedido['pedido_id']]);
+            procesarStockPedido($pdo, (int)$pedido['pedido_id']);
         }
 
         echo json_encode(['success' => true, 'message' => 'Pedido actualizado correctamente']);
 
     } catch (Exception $e) {
-        // Si algo falla dentro del bloque principal, revertimos los cambios
+        // Revertir cambios en caso de error
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
         echo json_encode(['error' => 'Error al actualizar el pedido: ' . $e->getMessage()]);
     }
 }
+
 
 ?>

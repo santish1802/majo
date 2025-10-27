@@ -1,5 +1,6 @@
 <?php
-require_once 'config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . "/config.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/config/funStock.php";
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -48,7 +49,9 @@ switch ($action) {
         echo json_encode(['error' => 'Acción no válida']);
 }
 
-function registrarPago($input) {
+
+function registrarPago($input)
+{
     global $pdo;
 
     $pedidoId = $input['pedido_id'] ?? null;
@@ -62,12 +65,11 @@ function registrarPago($input) {
     try {
         $pdo->beginTransaction();
 
-        // 1. (Opcional pero recomendado) Borrar pagos anteriores para este pedido.
-        // Esto evita duplicados si se intenta pagar de nuevo.
+        // 1. Eliminar pagos anteriores
         $stmt = $pdo->prepare("DELETE FROM pedido_pagos WHERE pedido_id = ?");
         $stmt->execute([$pedidoId]);
 
-        // 2. Insertar cada nuevo pago recibido
+        // 2. Insertar nuevos pagos
         $stmt = $pdo->prepare("INSERT INTO pedido_pagos (pedido_id, metodo_pago, monto) VALUES (?, ?, ?)");
         foreach ($pagos as $pago) {
             if (empty($pago['metodo_pago']) || !is_numeric($pago['monto'])) {
@@ -76,21 +78,25 @@ function registrarPago($input) {
             $stmt->execute([$pedidoId, $pago['metodo_pago'], $pago['monto']]);
         }
 
-        // 3. Actualizar el estado del pedido principal a 'completado'
+        // 3. Actualizar estado del pedido
         $stmt = $pdo->prepare("UPDATE pedidos SET estado = 'completado' WHERE id = ?");
         $stmt->execute([$pedidoId]);
+
+        // 4. Descontar el stock (misma transacción)
+        procesarStockPedido($pdo, $pedidoId);
+
+        // 5. Confirmar todo
         $pdo->commit();
-                $stmt = $pdo->prepare("CALL descontar_stock_pedido(?)");
-        $stmt->execute([$pedidoId]);
-        // Si todo fue bien, confirmar los cambios
+
         echo json_encode(['success' => true]);
 
     } catch (Exception $e) {
-        // Si algo falló, revertir todos los cambios
+        // Revertir TODO si algo falla
         $pdo->rollBack();
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 }
+
 
 function buscarProductos($query) {
     global $pdo;
@@ -306,12 +312,13 @@ function obtenerPedido($pedidoId) {
     }
 }
 
-function cambiarEstadoPedido($pedidoId, $estado) {
+
+function cambiarEstadoPedido($pedidoId, $estado)
+{
     global $pdo;
-    
+
     try {
         $estados_validos = ['pendiente', 'completado', 'cancelado'];
-        
         if (!in_array($estado, $estados_validos)) {
             throw new Exception('Estado no válido');
         }
@@ -320,28 +327,38 @@ function cambiarEstadoPedido($pedidoId, $estado) {
         $stmt = $pdo->prepare("SELECT estado FROM pedidos WHERE id = ?");
         $stmt->execute([$pedidoId]);
         $estadoActual = $stmt->fetchColumn();
-        
+
         if (!$estadoActual) {
             echo json_encode(['success' => false, 'error' => 'Pedido no encontrado']);
             return;
         }
 
-        // Actualizar estado
+        // Iniciar transacción
+        $pdo->beginTransaction();
+
+        // Actualizar estado del pedido
         $stmt = $pdo->prepare("UPDATE pedidos SET estado = ? WHERE id = ?");
         $stmt->execute([$estado, $pedidoId]);
 
-        // Si cambia a pendiente y no estaba en pendiente, reponer stock
+        // Si cambia a 'pendiente' y no lo estaba antes → reponer stock
         if ($estado === 'pendiente' && $estadoActual !== 'pendiente') {
-            $stmt = $pdo->prepare("CALL reponer_stock_pedido(?)");
-            $stmt->execute([$pedidoId]);
+            reponerStockPedido($pdo, $pedidoId);
         }
-        
+
+        // Confirmar todo
+        $pdo->commit();
+
         echo json_encode(['success' => true]);
-        
+
     } catch (Exception $e) {
+        // Revertir todo si algo falla
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 }
+
 
 function eliminarPedido($pedidoId) {
     global $pdo;
