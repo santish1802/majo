@@ -1,7 +1,6 @@
 <?php
 header("Content-Type: application/json; charset=UTF-8");
 
-// Incluir configuraciones y funciones
 require $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Debe contener $pdo
 require $_SERVER['DOCUMENT_ROOT'] . '/push/send.php'; // Debe contener sendMulticastNotification()
 
@@ -40,14 +39,6 @@ function getStockCritico(PDO $pdo): array
     return array_merge($ingredientes_criticos, $productos_criticos);
 }
 
-// -------------------------------------------------------------------
-// Verificar disponibilidad de PDO
-// -------------------------------------------------------------------
-if (!isset($pdo) || !$pdo) {
-    echo json_encode(["success" => false, "error" => "Error: No se pudo establecer la conexión a la base de datos (\$pdo no está disponible)."]);
-    exit;
-}
-
 try {
     // 1. Obtener stock crítico
     $stock_critico = getStockCritico($pdo);
@@ -66,9 +57,9 @@ try {
         $ultimo = $stmt->fetch(PDO::FETCH_ASSOC);
         $ultimo_articulos = $ultimo ? json_decode($ultimo['articulos'], true) : [];
 
-        // 3. Comparar con la última notificación
-        if (true) {
-            // Preparar mensaje con saltos de línea
+        //  @c-red CONDICION PARA ENVIAR NOTIFICACION SOLO SI HAY CAMBIOS
+        if ($ultimo_articulos !== $nombres_actuales) {
+
             $title = "Stock Crítico";
             $max_display = 5;
             $display_items = array_slice($nombres_actuales, 0, $max_display);
