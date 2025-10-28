@@ -1,4 +1,4 @@
-<?php 
+<?php
 require 'auth.php'; // PRIMERO la autenticación
 ?>
 <?php require_once 'config.php';
@@ -9,16 +9,16 @@ require 'auth.php'; // PRIMERO la autenticación
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="El título atractivo para WhatsApp"/>
-    <meta property="og:description" content="Una descripción clara y concisa de tu contenido."/>
-    <meta property="og:url" content="https://www.tuweb.com/pagina-ejemplo"/>
-    <meta property="og:image" content="assets/img/xd.png"/>
-    <meta property="og:type" content="article"/>
+    <meta property="og:title" content="El título atractivo para WhatsApp" />
+    <meta property="og:description" content="Una descripción clara y concisa de tu contenido." />
+    <meta property="og:url" content="https://www.tuweb.com/pagina-ejemplo" />
+    <meta property="og:image" content="assets/img/xd.png" />
+    <meta property="og:type" content="article" />
     <title>MAJO - Sistema de Pedidos</title>
-    <?php 
+    <?php
     include $_SERVER['DOCUMENT_ROOT'] . "/assets/img/favicon.php";
-    ?>   
-    <?php $version = date('YmdHi');?>
+    ?>
+    <?php $version = date('YmdHi'); ?>
     <link href="/assets/scss/bootstrap.css?v=<?php echo $version; ?>" rel="stylesheet">
     <link href="/assets/style.css?v=<?php echo $version; ?>" rel="stylesheet">
     <link href="/assets/css/all.css" rel="stylesheet">
@@ -156,41 +156,80 @@ require 'auth.php'; // PRIMERO la autenticación
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let carrito = [];
+        let productosGlobal = []; // <- todos los productos aquí
         let descuentoGlobal = {
             tipo: '',
             valor: 0
         };
         let itemIdCounter = 1;
 
-        // Controlar visibilidad del número de mesa
-        document.getElementById('tipoUbicacion').addEventListener('change', function() {
-            const numeroMesa = document.getElementById('numeroMesa');
-            numeroMesa.style.display = this.value === 'mesa' ? 'block' : 'none';
-            if (this.value !== 'mesa') numeroMesa.value = '';
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarProductos(); // carga inicial
+            configurarEventos();
         });
 
-        // Buscar productos
-        document.getElementById('buscarProducto').addEventListener('input', buscarProductos);
+        function configurarEventos() {
+            document.getElementById('tipoUbicacion').addEventListener('change', function() {
+                const numeroMesa = document.getElementById('numeroMesa');
+                numeroMesa.style.display = this.value === 'mesa' ? 'block' : 'none';
+                if (this.value !== 'mesa') numeroMesa.value = '';
+            });
 
-        function buscarProductos() {
-            const query = document.getElementById('buscarProducto').value;
-            if (query.length < 2) {
-                document.getElementById('sugerencias').style.display = 'none';
-                return;
-            }
+            document.getElementById('buscarProducto').addEventListener('input', buscarLocal);
 
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('#buscarProducto') && !event.target.closest('#sugerencias')) {
+                    document.getElementById('sugerencias').style.display = 'none';
+                }
+            });
+        }
+
+        // 🔹 Cargar todos los productos una sola vez
+        function cargarProductos() {
             fetch('api.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        action: 'buscar_productos',
-                        query: query
+                        action: 'listar_productos'
                     })
                 })
                 .then(response => response.json())
-                .then(productos => mostrarSugerencias(productos));
+                .then(data => {
+                    productosGlobal = data;
+                    console.log(`Productos cargados: ${productosGlobal.length}`);
+                })
+                .catch(err => console.error('Error cargando productos:', err));
+        }
+
+        // 🔹 Buscar localmente en productosGlobal
+        function buscarLocal() {
+            const query = document.getElementById('buscarProducto').value.trim().toLowerCase();
+            const sugerenciasDiv = document.getElementById('sugerencias');
+
+            if (query.length < 2) {
+                sugerenciasDiv.style.display = 'none';
+                return;
+            }
+
+            const resultados = productosGlobal.filter(item =>
+                item.nombre.toLowerCase().includes(query)
+            );
+
+            mostrarSugerencias(resultados);
+        }
+
+        function mostrarSugerencias(items) {
+            const sugerenciasDiv = document.getElementById('sugerencias');
+            sugerenciasDiv.innerHTML = items.map(item => `
+            <div class="sugerencia-item" onclick='agregarAlCarrito(${JSON.stringify(item).replace(/'/g, "\\'").replace(/"/g, "&quot;")})'>
+                <span>${item.nombre}</span>
+                <span>S/. ${parseFloat(item.precio).toFixed(2)}</span>
+                <span class="badge bg-primary">${item.tipo.toUpperCase()}</span>
+            </div>
+        `).join('');
+            sugerenciasDiv.style.display = items.length > 0 ? 'block' : 'none';
         }
 
         function mostrarSugerencias(items) {
@@ -206,18 +245,14 @@ require 'auth.php'; // PRIMERO la autenticación
         }
 
         function agregarAlCarrito(itemData) {
-            let itemExistente = null;
-            if (itemData.tipo === 'producto') {
-                itemExistente = carrito.find(item => item.producto_id === itemData.id);
-            } else if (itemData.tipo === 'combo') {
-                itemExistente = carrito.find(item => item.combo_id === itemData.id);
-            }
+            let itemExistente = carrito.find(item => item.producto_id === itemData.id);
 
             if (itemExistente) {
                 itemExistente.cantidad++;
             } else {
                 const newItem = {
                     id: itemIdCounter++,
+                    producto_id: itemData.id,
                     nombre: itemData.nombre,
                     precio: parseFloat(itemData.precio),
                     precioOriginal: parseFloat(itemData.precio),
@@ -231,14 +266,8 @@ require 'auth.php'; // PRIMERO la autenticación
                         esDescuento: false
                     },
                     notas: '',
-                    tipo: itemData.tipo
+                    tipo: itemData.tipo 
                 };
-
-                if (itemData.tipo === 'producto') {
-                    newItem.producto_id = itemData.id;
-                } else if (itemData.tipo === 'combo') {
-                    newItem.combo_id = itemData.id;
-                }
 
                 carrito.push(newItem);
             }
@@ -247,6 +276,7 @@ require 'auth.php'; // PRIMERO la autenticación
             document.getElementById('buscarProducto').value = '';
             document.getElementById('sugerencias').style.display = 'none';
         }
+
 
         function actualizarCarrito() {
             const carritoDiv = document.getElementById('carritoLista');
@@ -595,18 +625,21 @@ require 'auth.php'; // PRIMERO la autenticación
         }
 
         function crearPedido() {
-              const tipoUbicacion = document.getElementById('tipoUbicacion');
-  const numeroMesa = document.getElementById('numeroMesa');
+            const tipoUbicacion = document.getElementById('tipoUbicacion');
+            const numeroMesa = document.getElementById('numeroMesa');
 
-  // Si es "mesa" y el input está vacío
-  if (tipoUbicacion.value === 'mesa' && !numeroMesa.value.trim()) {
-    numeroMesa.classList.add('is-invalid');
-    numeroMesa.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    numeroMesa.focus();
-    return; // corta el envío
-  } else {
-    numeroMesa.classList.remove('is-invalid');
-  }
+            // Si es "mesa" y el input está vacío
+            if (tipoUbicacion.value === 'mesa' && !numeroMesa.value.trim()) {
+                numeroMesa.classList.add('is-invalid');
+                numeroMesa.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                numeroMesa.focus();
+                return; // corta el envío
+            } else {
+                numeroMesa.classList.remove('is-invalid');
+            }
             if (carrito.length === 0) {
                 alert('El carrito está vacío. Agregue productos para crear un pedido.');
                 return;

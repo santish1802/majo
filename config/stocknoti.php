@@ -67,7 +67,7 @@ try {
             if ($total_critico > $max_display) {
                 $body .= "\n...y " . ($total_critico - $max_display) . " más";
             }
-            $imageUrl = "/assets/img/logo.png";
+            $imageUrl = "/assets/img/noti.png";
 
             // 4. Enviar notificación push
             $notificacion_result = sendMulticastNotification($title, $body, $imageUrl);

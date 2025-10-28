@@ -21,8 +21,8 @@ switch ($action) {
         obtenerPedido($input['id']);
         break;
 
-    case 'buscar_productos':
-        buscarProductos($input['query']);
+    case 'listar_productos':
+        listarProductos();
         break;
 
     case 'actualizar_pedido':
@@ -84,25 +84,17 @@ function obtenerPedido($pedidoId) {
 /**
  * Busca productos activos en la base de datos
  */
-function buscarProductos($query) {
+function listarProductos() {
     global $pdo;
     
-    if (empty($query)) {
-        echo json_encode([]);
-        exit;
-    }
-    
     try {
-        $searchTerm = '%' . $query . '%';
-
         $stmt_productos = $pdo->prepare("
-            SELECT id, nombre, precio, 'producto' AS tipo 
+            SELECT id, nombre, precio, categoria AS tipo 
             FROM productos 
-            WHERE nombre LIKE ? AND activo = TRUE 
-            ORDER BY nombre 
-            LIMIT 10
+            WHERE activo = TRUE 
+            ORDER BY nombre
         ");
-        $stmt_productos->execute([$searchTerm]);
+        $stmt_productos->execute();
         $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
 
         echo json_encode($productos);

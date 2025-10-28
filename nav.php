@@ -72,11 +72,11 @@ if (!isset($_SESSION['rol'])) {
                         <a class="nav-link" href="/admin/panel.php">Estadísticas</a>
                     </li>
                 <?php endif; ?>
-                <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'admin'): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/stock.php">Stock</a>
-                    </li>
-                <?php endif; ?>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/stock.php">Stock</a>
+                </li>
+
                 <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'admin'): ?>
                     <li class="nav-item">
                         <a class="nav-link" href="/admin/productos.php">Productos</a>
@@ -86,7 +86,7 @@ if (!isset($_SESSION['rol'])) {
 
             <div class="d-flex mb-3 mb-lg-0">
                 <?php if (isset($_SESSION['id_usuario'])): ?>
-                    <div class="dropdown">
+                    <div class="dropdown ms-auto">
                         <button class="btn btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-fill"></i> ¡Hola, <?php echo htmlspecialchars($_SESSION['nombre_usuario']); ?>!
                         </button>
@@ -107,5 +107,3 @@ if (!isset($_SESSION['rol'])) {
         </div>
     </div>
 </nav>
-
-

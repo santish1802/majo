@@ -16,8 +16,8 @@ $action = $input['action'] ?? '';
 
 switch ($action) {
     // Funciones originales del api.php (mantenidas para compatibilidad)
-    case 'buscar_productos':
-        buscarProductos($input['query']);
+    case 'listar_productos':
+        buscarProductos();
         break;
     case 'crear_pedido':
         crearPedido($input['pedido']);
@@ -65,11 +65,16 @@ function registrarPago($input)
     try {
         $pdo->beginTransaction();
 
-        // 1. Eliminar pagos anteriores
+        // 1. Verificar estado actual del pedido
+        $stmt = $pdo->prepare("SELECT estado FROM pedidos WHERE id = ?");
+        $stmt->execute([$pedidoId]);
+        $estadoActual = $stmt->fetchColumn();
+
+        // 2. Eliminar pagos anteriores
         $stmt = $pdo->prepare("DELETE FROM pedido_pagos WHERE pedido_id = ?");
         $stmt->execute([$pedidoId]);
 
-        // 2. Insertar nuevos pagos
+        // 3. Insertar nuevos pagos
         $stmt = $pdo->prepare("INSERT INTO pedido_pagos (pedido_id, metodo_pago, monto) VALUES (?, ?, ?)");
         foreach ($pagos as $pago) {
             if (empty($pago['metodo_pago']) || !is_numeric($pago['monto'])) {
@@ -78,51 +83,47 @@ function registrarPago($input)
             $stmt->execute([$pedidoId, $pago['metodo_pago'], $pago['monto']]);
         }
 
-        // 3. Actualizar estado del pedido
+        // 4. Actualizar estado del pedido
         $stmt = $pdo->prepare("UPDATE pedidos SET estado = 'completado' WHERE id = ?");
         $stmt->execute([$pedidoId]);
 
-        // 4. Descontar el stock (misma transacción)
-        procesarStockPedido($pdo, $pedidoId);
+        // 5. Descontar el stock solo si el pedido NO estaba completado antes
+        if ($estadoActual !== 'completado') {
+            procesarStockPedido($pdo, $pedidoId);
+        }
 
-        // 5. Confirmar todo
+        // 6. Confirmar todo
         $pdo->commit();
 
         echo json_encode(['success' => true]);
 
     } catch (Exception $e) {
-        // Revertir TODO si algo falla
         $pdo->rollBack();
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 }
 
 
-function buscarProductos($query) {
+
+function buscarProductos() {
     global $pdo;
-    if (empty($query)) {
-        echo json_encode([]);
-        exit;
-    }
-    
+
     try {
         $resultados = [];
-        $searchTerm = '%' . $query . '%';
 
-        // Buscar productos
-        
-        $stmt_productos = $pdo->prepare("SELECT id, nombre, precio, 'producto' AS tipo FROM productos WHERE nombre LIKE ? AND activo = TRUE LIMIT 10");
-        $stmt_productos->execute([$searchTerm]);
+        // Obtener todos los productos activos
+        $stmt_productos = $pdo->query("SELECT id, nombre, precio, categoria AS tipo FROM productos WHERE activo = TRUE");
         $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
 
-        // Combinar los resultados en una sola lista
-        $resultados = array_merge($productos);
-        
+
+        $resultados = $productos;
+
         echo json_encode($resultados);
     } catch (PDOException $e) {
         echo json_encode(['error' => 'Error de base de datos: ' . $e->getMessage()]);
     }
 }
+
 
 function crearPedido($pedido) {
     global $pdo;
@@ -162,10 +163,6 @@ function crearPedido($pedido) {
 
         // Insertar detalles del pedido
         foreach ($pedido['items'] as $item) {
-            // Ignorar items que no sean productos (se quita soporte para combos)
-            if (($item['tipo'] ?? 'producto') !== 'producto') {
-            continue;
-            }
 
             $productoId = $item['id'];
             $cantidad = $item['cantidad'];
@@ -222,14 +219,15 @@ function obtenerPedidos($fecha) {
         // Para cada pedido, obtener sus items
         foreach ($pedidos as &$pedido) {
             $stmt = $pdo->prepare("
-            SELECT 
-                pd.*,
-                p.nombre as nombre,
-                p.precio as precio_unitario
-            FROM pedido_detalle pd
-            LEFT JOIN productos p ON pd.producto_id = p.id
-            WHERE pd.pedido_id = ?
-            ORDER BY pd.id
+SELECT 
+    pd.*,
+    p.nombre AS nombre,
+    p.precio AS precio_unitario,
+    p.categoria AS categoria
+FROM pedido_detalle pd
+LEFT JOIN productos p ON pd.producto_id = p.id
+WHERE pd.pedido_id = ?
+ORDER BY p.categoria
             ");
             $stmt->execute([$pedido['id']]);
             $items = $stmt->fetchAll(PDO::FETCH_ASSOC);

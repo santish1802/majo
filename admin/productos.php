@@ -88,7 +88,6 @@
                         <label for="productoCategoria" class="form-label">Categoría</label>
                         <select class="form-select" id="productoCategoria">
                             <option value="cafe">Café</option>
-                            <option value="dulce">Dulce</option>
                             <option value="dulces">Dulces</option>
                             <option value="empanadas">Empanadas</option>
                             <option value="extras">Extras</option>
@@ -98,6 +97,7 @@
                             <option value="jugos">Jugos</option>
                             <option value="sanguches">Sanguches</option>
                             <option value="waffles">Waffles</option>
+                            <option value="bebidas">Bebidas</option>
                             <option value="otros">Otros</option>
                         </select>
                     </div>
