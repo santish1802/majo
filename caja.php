@@ -1,6 +1,6 @@
-<?php require $_SERVER['DOCUMENT_ROOT'] . '/auth.php'; ?>
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/auth.php'; ?>
 <?php
-require $_SERVER['DOCUMENT_ROOT'] . "/config.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/config.php";
 
 // --- FUNCIONES DE SEGURIDAD ---
 function generar_token_csrf()

@@ -1,8 +1,8 @@
 <?php
 header("Content-Type: application/json; charset=UTF-8");
 
-require $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Debe contener $pdo
-require $_SERVER['DOCUMENT_ROOT'] . '/push/send.php'; // Debe contener sendMulticastNotification()
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Debe contener $pdo
+require_once $_SERVER['DOCUMENT_ROOT'] . '/push/send.php'; // Debe contener sendMulticastNotification()
 
 /**
  * Recupera una lista unificada de todos los artículos (Ingredientes/Frutas y Productos Unidad) 

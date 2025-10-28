@@ -1,7 +1,7 @@
 <?php
 // push_functions.php
 
-require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Exception\FirebaseException;

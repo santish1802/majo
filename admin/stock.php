@@ -1,4 +1,4 @@
-<?php require $_SERVER['DOCUMENT_ROOT'] . '/auth.php'; ?>
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/auth.php'; ?>
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . "/config.php"; ?>
 <!DOCTYPE html>
 <html lang="es">
